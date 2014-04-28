@@ -1,0 +1,4 @@
+CREATE DATABASE tierra_fertil
+  WITH OWNER = postgres
+       ENCODING = 'UTF8';
+ALTER DATABASE tierra_fertil SET TimeZone=America/Caracas;
