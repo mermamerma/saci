@@ -100,10 +100,13 @@ a:hover {
                             $clave		= md5($_POST["clave"]);
 							$usuario	= $_POST["usuario"];
 							$pos		= strpos($usuario, '@');
+							//die('Usuario: '.$usuario. 'Clave: '.$clave);
 							$usuario	= ($pos) ? substr($usuario, 0, $pos) : $usuario ;												
 							$valid_ldap = authenticateMailServer($usuario, $_POST["clave"]) ;							
                             $nuser = $dat->Count("sis_usuarios", "idestatus=1 and lower(login)='".strtolower($usuario)."'");
-                            if ($nuser > 0 AND $valid_ldap == TRUE) {									
+							//die('Variable: '.$nuser);
+                            if ($nuser > 0 AND $valid_ldap == TRUE) {	
+									//session_start();
 									$_SESSION["idusuario"] = '';
                                     unset($_SESSION["idusuario"]);                                    
 									unset($_SESSION["usuario"]);									

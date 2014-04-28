@@ -13,7 +13,7 @@ class cpuntos extends Datos {
 				'{$data['carta_solicitud']}', '{$data['informe_social']}', '{$data['informe_medico']}', '{$data['presupuesto']}', '{$data['copia_ci']}',
 				'{$data['monto']}','{$data['razon_social']}','{$data['rif']}','{$data['concepto']}', {$data['id_decision']}, '{$data['observaciones']}', $id_usuario)
 				RETURNING id_pto_cta ";
-		$insert  = $this->Ejecutarsql($sql); 
+		$insert  = $this->Ejecutarsql($sql); 		
 		$last_id = $this->getMax('puntos_cuenta','id_pto_cta','');        
 		$this->set_idusuario_seg($_SESSION["idusuario"]);
         $desc_seg=" <b>Registró</b> el Punto de Cuenta del Caso <b>(Id: {$data['id_caso']})</b>";

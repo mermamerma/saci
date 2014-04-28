@@ -1126,8 +1126,13 @@ function Ejecutarsql($sql)
 {
     $this->Conectar();
     $this->cadena_error=$sql;
-    return pg_query($this->conn,$sql);
-	##die(pg_last_error ($this->conn));
+	$resultado = pg_query($this->conn,$sql);
+	if ($resultado == FALSE or $resultado === FALSE)
+		die('Error on Driver DB...! </br><b>Contacte al Administrador del Sistema :-S</b>') ;		
+	else
+		return $resultado;
+	# return pg_query($this->conn,$sql);
+	# die(pg_last_error ($this->conn));
     //$this->Desconectar();
 }
 
