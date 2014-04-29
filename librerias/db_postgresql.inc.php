@@ -4,7 +4,7 @@ require_once("formato.inc.php");
 require_once("constantes.php");
 #var_dump($_SERVER);exit;
 $host = $_SERVER['HTTP_HOST'];
-$ruta = ($host == '172.27.38.66') ? 'http://172.27.38.66/tierra_fertil/' : 'http://saci.mppre.gob.ve/' ;
+$ruta = ($host == '172.27.38.66') ? 'http://172.27.38.66/saci/' : 'http://saci.mppre.gob.ve/' ;
 define('BASE_URL', $ruta);
 
 
@@ -206,33 +206,34 @@ public function set_justificacion_seg($val_) {
 function Datos(){
 
 }
-	
+// Conexión a la base de datos
 function Conectar(){
 	
 	$host = $_SERVER['HTTP_HOST'];
 	if ($host == '172.27.38.66') {
-		/*
+		
 		$B_strhost="10.11.11.9";
 		$B_strusuario="saci";
 		$B_strpassword="s@c1atencion1";
 		$B_strbd="tierra_fertil";
 		$B_strpuerto="5432";
-		*/ 
-		
+		 
+		/*
 		$B_strhost="localhost";
 		$B_strusuario="postgres";
 		$B_strpassword="postgres";
 		$B_strbd="tierra_fertil";
 		$B_strpuerto="5432";
+		*/
 		
 	}
-		else {		
+	else {		
 			$B_strhost="10.11.11.9";
 			$B_strusuario="saci";
 			$B_strpassword="s@c1atencion1";
 			$B_strbd="tierra_fertil";
 			$B_strpuerto="5432";
-		}
+	}
 
 	$this->cadconex="host=$B_strhost dbname=$B_strbd port=$B_strpuerto user=$B_strusuario password=$B_strpassword";
         $resul= pg_connect($this->cadconex);
@@ -1128,7 +1129,7 @@ function Ejecutarsql($sql)
     $this->cadena_error=$sql;
 	$resultado = pg_query($this->conn,$sql);
 	if ($resultado == FALSE or $resultado === FALSE)
-		die('Error on Driver DB...! </br><b>Contacte al Administrador del Sistema :-S</b>') ;		
+		die('Error on Driver DB...! </br><b>Contacte al Administrador del Sistema</b>') ;		
 	else
 		return $resultado;
 	# return pg_query($this->conn,$sql);

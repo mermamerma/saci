@@ -1,4 +1,13 @@
 <?php
+
+function date_to_db($date,$input = '/', $output = '-'){
+	if ($date != '') 
+		return  implode($output, array_reverse(explode($input,$date)));
+	else 
+		return NULL ;
+		
+}
+
 //obtener fecha actual
 $diahoy = getdate();
 $anio_actual = $diahoy["year"];

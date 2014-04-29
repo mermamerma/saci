@@ -172,9 +172,7 @@
                 <tr>
                 <td colspan="6" style="border:#CCCCCC solid 1px;" bgcolor="#F8F8F8" >
                 <div align="center" style="background-image: url('../comunes/imagenes/barra.png');">
-                    <strong>B&uacute;squeda General</strong>
-                </div>
-                </td>
+                    <strong>B&uacute;squeda General</strong>                </div>                </td>
                 </tr>
 
                  <tr>
@@ -188,8 +186,7 @@
                         echo ($dat->Cargarlista("select idmaestro, descripcion from vremitentes where estatus=1 order by descripcion", $_REQUEST["remitente"]));
                         ?>
                         </select>
-                        </label>
-                    </td>
+                        </label>                    </td>
                     <td width="89"><strong>Tipo de Caso:</strong></td>
                     <td width="199">
                         <select name="tipo_caso" id="tipo_caso" style="width:166px;" class="inputbox" onchange='cargaContenido_Categoria(this.id)' >
@@ -197,8 +194,7 @@
                         <?php
                         echo ($dat->Cargarlista("select idmaestro, descripcion from vtipos_casos order by descripcion", $_REQUEST["tipo_caso"]));
                         ?>
-                        </select>
-                    </td>
+                        </select>                    </td>
                 </tr>
 
                 <tr>
@@ -209,14 +205,12 @@
                         <select name="categoria" id="categoria" style="width:166px;" class="inputbox" onchange='cargaContenido_Categoria(this.id)' >
                         <option value="0">Seleccione...</option>
                         </select>
-                        </label>
-                    </td>
+                        </label>                    </td>
                     <td width="89"><strong>Subcategor&iacute;a:</strong></td>
                     <td width="199">
                         <select name="subcategoria" id="subcategoria" style="width:166px;" class="inputbox" >
                         <option value="0">Seleccione...</option>
-                        </select>
-                    </td>
+                        </select>                    </td>
                 </tr>
 
                 <tr>
@@ -243,33 +237,45 @@
 
 
                 <tr>
-                    <td width="1">&nbsp;</td>
-                    <td width="95"><strong>Parroquia:</strong></td>
-                    <td width="176"><label>
-                    <select name="parroquia" id="parroquia" style="width:166px;" class="inputbox">
+                  <td>&nbsp;</td>
+                  <td><strong>Parroquia:</strong></td>
+                  <td><select name="parroquia" id="parroquia" style="width:166px;" class="inputbox">
                     <option value="0">Seleccione...</option>
                     <?php
                     echo ($dat->Cargarlista("select idparroquia, descripcion from parroquias where idmunicipio=".$_REQUEST["municipio"]." order by descripcion", $_REQUEST["parroquia"]));
                     ?>
-                    </select>
-                    </label>
-                    </td>
-                    <td width="89"><strong>Estatus del Caso:</strong></td>
-                    <td width="199"><select name="estatus" id="estatus" style="width:166px;" class="inputbox">
+                  </select></td>
+                  <td><strong>Estatus del Caso:</strong></td>
+                  <td><select name="estatus" id="estatus" style="width:166px;" class="inputbox">
                     <option value="0">Seleccione...</option>
                     <?php
                     echo ($dat->Cargarlista("select idmaestro, descripcion from vestatus_casos order by descripcion", $_REQUEST["estatus"]));
                     ?>
-                    </select>
-                    </td>
+                  </select></td>
+                </tr>
+                <tr>
+                    <td width="1">&nbsp;</td>
+                    <td width="95"><strong>Desde la Fecha:</strong></td>
+                    <td width="176"><input class="inputbox_fecha" name="f_inicio2"  id="f_inicio2"  onchange="cambio_inicio();" value="" size="10"   readonly="true" />
+                      <a href="javascript:void(0)"  onclick="inicio();" hidefocus><img class="PopcalTrigger"  style="width:36px; height:19px;  margin-left:5px;" align="absbottom" src="../comunes/calendar/btn_dis_cal.gif"  border="0" alt="" /></a>
+						<!--  Calendario  -->
+						<iframe width=174 height=189 name="gToday:normal:agenda.js" id="gToday:normal:agenda.js" src="../comunes/calendar/ipopeng.htm" scrolling="no" frameborder="0" style="visibility:visible; z-index:999; position:absolute; top:-500px; left:-500px;"></iframe>
+						<!--  Calendario  -->
+						<strong style="font:bold xx-large; color: red;" >*</strong>					</td>
+                    <td width="89"><strong>Hasta la Fecha </strong></td>
+                    <td width="199">					
+						<input class="inputbox_fecha" name="f_inicio"  id="f_inicio"  onchange="cambio_inicio();" value="" size="10"   readonly="true" />
+						<a href="javascript:void(0)"  onclick="inicio();" hidefocus><img class="PopcalTrigger"  style="width:36px; height:19px;  margin-left:5px;" align="absbottom" src="../comunes/calendar/btn_dis_cal.gif"  border="0" alt="" /></a>
+						<!--  Calendario  -->
+						<iframe width=174 height=189 name="gToday:normal:agenda.js" id="gToday:normal:agenda.js" src="../comunes/calendar/ipopeng.htm" scrolling="no" frameborder="0" style="visibility:visible; z-index:999; position:absolute; top:-500px; left:-500px;"></iframe>
+						<!--  Calendario  -->
+						<strong style="font:bold xx-large; color: red;" >*</strong>					</td>
                 </tr>
 
                 <tr>
                 <td colspan="6" style="border:#CCCCCC solid 1px;" bgcolor="#F8F8F8" >
                 <div align="center" style="background-image: url('../comunes/imagenes/barra.png');">
-                    <strong>Solicitante</strong>
-                </div>
-                </td>
+                    <strong>Solicitante</strong>                </div>                </td>
                 </tr>
 
 
@@ -278,24 +284,20 @@
                     <td width="95"><strong>C&eacute;dula:</strong></td>
                     <td width="176"><label>
                     <input name="cedula_solic" type="text" class="inputbox" id="cedula_solic" onkeypress="return CedulaFormat(this,'Cédula de Identidad Invalida',-1,true,event)" onmouseout="UnTip()" maxlength="12" value="<?= @$_REQUEST['cedula_solic'] ?>" ></input>
-                    </label>
-                    </td>
+                    </label>                    </td>
                     <td width="89"><strong>R.I.F:</strong></td>
-                    <td width="199"><input name="rif_solic" type="text" class="inputbox" id="rif_solic" onkeypress="return RifFormat(this,'Rif del Solicitante Invalido',-1,true,event)" onmouseout="UnTip()" maxlength="12" value="<?= @$_REQUEST['rif_solic'] ?>" ></input>
-                    </td>
+                    <td width="199"><input name="rif_solic" type="text" class="inputbox" id="rif_solic" onkeypress="return RifFormat(this,'Rif del Solicitante Invalido',-1,true,event)" onmouseout="UnTip()" maxlength="12" value="<?= @$_REQUEST['rif_solic'] ?>" ></input>                    </td>
                 </tr>
 
 
                 <tr>
                 <td width="1">&nbsp;</td>
                 <td width="95">
-                    <strong>Raz&oacute;n Social:</strong>
-                </td>
+                    <strong>Raz&oacute;n Social:</strong>                </td>
                 <td width="176">
                     <label>
                         <input name="razon_social_solic" type="text" class="inputbox" id="razon_social_solic" onkeypress="return validar_texto(this.form,this,event,'')" value="<?= @$_REQUEST['razon_social_solic'] ?>"></input>
-                    </label>
-                </td>
+                    </label>                </td>
                 <td width="89"><strong>Tipo de Solicitante:</strong></td>
                     <td width="199">
                         <select name="tipo_solicitante" id="tipo_solicitante" style="width:166px;" class="inputbox">
@@ -303,8 +305,7 @@
                         <?php
                         echo ($dat->Cargarlista("select idmaestro, descripcion from vtipo_solicitantes where estatus=1 order by descripcion", @$_REQUEST["tipo_solicitante"]));
                         ?>
-                        </select>
-                    </td>
+                        </select>                    </td>
                 </tr>
 
 
@@ -312,9 +313,7 @@
                 <tr>
                 <td colspan="6" style="border:#CCCCCC solid 1px;" bgcolor="#F8F8F8" >
                 <div align="center" style="background-image: url('../comunes/imagenes/barra.png');">
-                    <strong>Beneficiario</strong>
-                </div>
-                </td>
+                    <strong>Beneficiario</strong>                </div>                </td>
                 </tr>
 
 
@@ -324,24 +323,20 @@
                     <td width="95"><strong>C&eacute;dula:</strong></td>
                     <td width="176"><label>
                     <input name="cedula_benef" type="text" class="inputbox" id="cedula_benef" onkeypress="return CedulaFormat(this,'Cédula de Identidad Invalida',-1,true,event)" onmouseout="UnTip()" maxlength="12" value="<?= @$_REQUEST['cedula_benef'] ?>" ></input>
-                    </label>
-                    </td>
+                    </label>                    </td>
                     <td width="89"><strong>R.I.F:</strong></td>
-                    <td width="199"><input name="rif_benef" type="text" class="inputbox" id="rif_benef" onkeypress="return RifFormat(this,'Rif del Beneficiario Invalido',-1,true,event)" onmouseout="UnTip()" maxlength="12" value="<?= @$_REQUEST['rif_benef'] ?>" ></input>
-                    </td>
+                    <td width="199"><input name="rif_benef" type="text" class="inputbox" id="rif_benef" onkeypress="return RifFormat(this,'Rif del Beneficiario Invalido',-1,true,event)" onmouseout="UnTip()" maxlength="12" value="<?= @$_REQUEST['rif_benef'] ?>" ></input>                    </td>
                 </tr>
 
 
                 <tr>
                 <td width="1">&nbsp;</td>
                 <td width="95">
-                    <strong>Raz&oacute;n Social:</strong>
-                </td>
+                    <strong>Raz&oacute;n Social:</strong>                </td>
                 <td width="176">
                     <label>
                         <input name="razon_social_benef" type="text" class="inputbox" id="razon_social_benef" onkeypress="return validar_texto(this.form,this,event,'')" value="<?= @$_REQUEST['razon_social_benef'] ?>"></input>
-                    </label>
-                </td>
+                    </label>                </td>
                 <td width="89"><strong>Tipo de Beneficiario:</strong></td>
                     <td width="199">
                         <select name="tipo_beneficiario" id="tipo_beneficiario" style="width:166px;" class="inputbox">
@@ -349,8 +344,7 @@
                         <?php
                         echo ($dat->Cargarlista("select idmaestro, descripcion from vtipo_solicitantes where estatus=1 order by descripcion", @$_REQUEST["tipo_beneficiario"]));
                         ?>
-                        </select>
-                    </td>
+                        </select>                    </td>
                 </tr>
 
 
@@ -367,10 +361,8 @@
                                 <td colspan="6" style="border:#CCCCCC solid 1px;">
                                     <div align="center" style="background-image: url('../comunes/imagenes/barra.png')">
                                         <br>
-                                    </div>
-                                </td>
+                                    </div>                                </td>
                             </tr>
-
             </table>
 
         </div>

@@ -18,6 +18,21 @@
 <script src="../comunes/js/prototype.js" type="text/javascript"></script>
 
 <script language="javascript">
+	function inicio()
+		{
+			if(self.gfPop)
+			{
+					gfPop.fPopCalendar(document.frmlista_casos.f_inicio);
+			}
+		}
+	
+	function fin()
+		{
+			if(self.gfPop)
+			{
+					gfPop.fPopCalendar(document.frmlista_casos.f_fin);
+			}
+		}
 
 	function exportar()
 	{
@@ -218,12 +233,25 @@
                         $filtro.=" and b.idtipo_solicitante=".$_REQUEST["tipo_beneficiario"];
                         $_SESSION["filtro_caso"].=" and vc.idtipo_solicitante_benef=".$_REQUEST["tipo_beneficiario"];
                     }
+					## Filtro para el rango de fechas
+					if ($_REQUEST["f_inicio"] !='')
+                    {
+                        $f_inicio = date_to_db($_REQUEST["f_inicio"]);
+						$filtro .=  " AND c.fecha_registro >= '$f_inicio'";
+                        $_SESSION["filtro_f_inicio"].= "AND c.fecha_registro >= '$f_inicio'";
+                    }
+					if ($_REQUEST["f_fin"] !='')
+                    {
+                        $f_fin = date_to_db($_REQUEST["f_fin"]);
+						$filtro .=  " AND c.fecha_registro <= '$f_fin'";
+                        $_SESSION["filtro_f_inicio"].= "AND c.fecha_registro <= '$f_fin'";
+                    }
                      
 		}
                 
 		$sql.= $filtro." order by c.idcaso desc";
 
-		//echo $sql; //die();
+		#echo $sql; die();
 	 ?>
 
 
@@ -337,6 +365,23 @@
                     ?>
                     </select>
                     </td>
+                </tr>
+				                <tr>
+                    <td width="1">&nbsp;</td>
+                    <td width="95"><strong>Desde la Fecha:</strong></td>
+                    <td width="176"><input class="inputbox_fecha" name="f_inicio"  id="f_inicio"  onchange="" value="" size="10"   readonly="true" />
+                      <a href="javascript:void(0)"  onclick="inicio();" hidefocus><img class="PopcalTrigger"  style="width:36px; height:19px;  margin-left:5px;" align="absbottom" src="../comunes/calendar/btn_dis_cal.gif"  border="0" alt="" /></a>
+						<!--  Calendario  -->
+						<iframe width=174 height=189 name="gToday:normal:agenda.js" id="gToday:normal:agenda.js" src="../comunes/calendar/ipopeng.htm" scrolling="no" frameborder="0" style="visibility:visible; z-index:999; position:absolute; top:-500px; left:-500px;"></iframe>
+						<!--  Calendario  -->
+						</td>
+                    <td width="89"><strong>Hasta la Fecha </strong></td>
+                    <td width="199">
+						<input class="inputbox_fecha" name="f_fin"  id="f_fin"  onchange="" value="" size="10"   readonly="true" />
+                      	<a href="javascript:void(0)"  onclick="fin();" hidefocus><img class="PopcalTrigger"  style="width:36px; height:19px;  margin-left:5px;" align="absbottom" src="../comunes/calendar/btn_dis_cal.gif"  border="0" alt="" /></a>
+						<!--  Calendario  -->
+						<iframe width=174 height=189 name="gToday:normal:agenda.js" id="gToday:normal:agenda.js" src="../comunes/calendar/ipopeng.htm" scrolling="no" frameborder="0" style="visibility:visible; z-index:999; position:absolute; top:-500px; left:-500px;"></iframe>						
+					</td>
                 </tr>
                 <tr>
 					<td colspan="6" style="border:#CCCCCC solid 1px;" bgcolor="#F8F8F8" >
