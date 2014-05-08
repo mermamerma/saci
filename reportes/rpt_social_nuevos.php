@@ -4,6 +4,7 @@ require_once '../cdatos/ccasos.php';
 require_once '../cdatos/csolicitantes.php';
 require_once('../comunes/tcpdf/config/lang/eng.php');
 require_once('../comunes/tcpdf/tcpdf.php');
+require_once '../paginas/aplicaciones.php';
 
 
 class MYPDF extends TCPDF
@@ -300,10 +301,11 @@ $tabla.="</table><br>
 
 
 $tabla.="<table width=\"100%\"  border=\"1\" cellspacing=\"0\" cellpadding=\"5\">
-<tr>
+<tr  style=\"font-size:30px\; background-color:#E9E9E9 \">
 <td align=\"center\"><b>Nombre y Apellido</b></td>
 <td align=\"center\" ><b>C.I.</b></td>
 <td align=\"center\"  ><b>Edad</b></td>
+<td align=\"center\"  ><b>Nacimiento</b></td>
 <td align=\"center\" ><b>Parentesco</b></td>
 <td align=\"center\" ><b>Grado de Instrucción</b></td>
 <td align=\"center\" ><b>Ocupación</b></td>
@@ -315,28 +317,31 @@ $tabla.="<table width=\"100%\"  border=\"1\" cellspacing=\"0\" cellpadding=\"5\"
 
 $ccaso->Conectar();
 
-$strSql="SELECT razon_social, cedula, edad, idparentesco, ( SELECT maestro.descripcion FROM maestro WHERE maestro.idmaestro = idparentesco) AS sparentesco, 
+$strSql="SELECT razon_social, cedula, edad, TO_CHAR(fecha_nac, 'DD-MM-YYYY') as f_nacimiento, idparentesco, ( SELECT maestro.descripcion FROM maestro WHERE maestro.idmaestro = idparentesco) AS sparentesco, 
 idgrado_instruccion, ( SELECT maestro.descripcion FROM maestro WHERE maestro.idmaestro = idgrado_instruccion) AS sgrado,
  idocupacion, sexo, 
  CASE WHEN sexo::text = 'F'::text THEN 'FEMENINO'::text WHEN sexo::text = 'M'::text THEN 'MASCULINO'::text ELSE NULL::text END AS ssexo, 
  ( SELECT maestro.descripcion FROM maestro WHERE maestro.idmaestro = idocupacion) AS socupacion, ingreso_mensual 
  FROM solicitantes_actuales where idsolicitante=".$idsolicitante."
  union 
- SELECT razon_social, cedula, edad, idparentesco, ( SELECT maestro.descripcion FROM maestro WHERE maestro.idmaestro = idparentesco) AS sparentesco, 
+ SELECT razon_social, cedula, edad, TO_CHAR(f_nacimiento, 'DD-MM-YYYY') as f_nacimiento, idparentesco, ( SELECT maestro.descripcion FROM maestro WHERE maestro.idmaestro = idparentesco) AS sparentesco, 
  idgrado_instruccion, ( SELECT maestro.descripcion FROM maestro WHERE maestro.idmaestro = idgrado_instruccion) AS sgrado, idocupacion, sexo, 
  CASE WHEN sexo::text = 'F'::text THEN 'FEMENINO'::text WHEN sexo::text = 'M'::text THEN 'MASCULINO'::text ELSE NULL::text END AS ssexo, 
  ( SELECT maestro.descripcion FROM maestro WHERE maestro.idmaestro = idocupacion) AS socupacion, ingreso_mensual 
  FROM nucleo_familiar_nuevos where idsolicitante=".$idsolicitante." order by edad";
-
+#die($strSql);
 $rs_perfil=new Recordset($strSql, $ccaso->conn);
+$x = $rs_perfil->Mostrar();
+#var_dump($x); exit;
 $total_ingreso=0;
-
+#var_dump($rs_perfil->rowset["razon_social"]) ; exit ;
 while($rs_perfil->Mostrar())
 {
-    $tabla.="<tr>
-                <td align=\"center\">".$rs_perfil->rowset["razon_social"]."</td>
+    $tabla.="<tr style=\"font-size:27px\">
+                <td align=\"center\" style=\"font-size:22px\">".to_mayuscula($rs_perfil->rowset["razon_social"])."</td>
                 <td align=\"center\" >".$rs_perfil->rowset["cedula"]."</td>
                 <td align=\"center\" ><b>".$rs_perfil->rowset["edad"]."</b></td>
+				<td align=\"center\" ><b>".$rs_perfil->rowset["f_nacimiento"]."</b></td>
                 <td align=\"center\" ><b>".ucwords(strtolower($rs_perfil->rowset["sparentesco"]))."</b></td>
                 <td align=\"left\" >".ucwords(strtolower($rs_perfil->rowset["sgrado"]))."</td>
                 <td align=\"left\" >".ucwords(strtolower($rs_perfil->rowset["socupacion"]))."</td>
@@ -350,7 +355,7 @@ while($rs_perfil->Mostrar())
 
 
 $tabla.="<tr>
-<td align=\"right\" colspan=\"6\"><b>Total de Ingreso:</b></td>
+<td align=\"right\" colspan=\"7\"><b>Total de Ingreso:</b></td>
 <td align=\"right\"><b>".to_moneda($total_ingreso)."</b></td>
 </tr>
 </table>
