@@ -558,7 +558,8 @@ class csolicitantes extends Datos
 	
 	function Update_Solic_Benef_Caso_nuevos()
     {
-        if ($this->get_idsolicitante()>0)
+        
+		if ($this->get_idsolicitante()>0)
         {
 
             if ($this->get_razon_social()<>'')

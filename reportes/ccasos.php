@@ -388,7 +388,7 @@
         @ob_end_clean();
         
 		
-        $csolic->set_razon_social($formulario["razon_social_solic"]);
+        $csolic->set_razon_social(to_mayuscula($formulario["razon_social_solic"]));
         $csolic->set_rif($formulario["rif_solic"]);
         $csolic->set_cedula($formulario["cedula_solic"]);
         $csolic->set_telefonos($formulario["telefonos_solic"]);
@@ -406,7 +406,7 @@
         }
         else
         {
-            $cbenef->set_razon_social($formulario["razon_social_benef"]);
+            $cbenef->set_razon_social(to_mayuscula($formulario["razon_social_benef"]));
             $cbenef->set_rif($formulario["rif_benef"]);
             $cbenef->set_cedula($formulario["cedula_benef"]);
             $cbenef->set_correo_electronico($formulario["email_benef"]);
@@ -1015,9 +1015,15 @@
 
             if (!$formulario["parentesco_fami"]>0)  $formulario["parentesco_fami"]="12";
             if (!$formulario["grado_fami"]>0)  $formulario["grado_fami"]="118";
-            if (!$formulario["ocupacion_fami"]>0)  $formulario["ocupacion_fami"]="9";       
+            if (!$formulario["ocupacion_fami"]>0)  $formulario["ocupacion_fami"]="9";  
+			$f_nacimiento = ($formulario["f_nacimiento"] != '')?  date_to_db($formulario["f_nacimiento"]) : '' ;
             
-            $sentencia_sql="insert into nucleo_familiar_nuevos (idsolicitante, razon_social, cedula, edad, idparentesco, idgrado_instruccion, idocupacion, sexo, ingreso_mensual, idusuario)  values  (".$formulario["idsolicitante"].", '".$formulario["razon_social_fami"]."', '".$formulario["cedula_fami"]."', '".$formulario["edad_fami"]."', '".$formulario["parentesco_fami"]."', '".$formulario["grado_fami"]."', '".$formulario["ocupacion_fami"]."', '".$formulario["sexo_fami"]."', '".to_moneda_bd($formulario["ingreso_fami"])."', '".$_SESSION["idusuario"]."')";
+            $sentencia_sql="
+			insert into nucleo_familiar_nuevos 
+			(idsolicitante, razon_social, cedula, edad, f_nacimiento, idparentesco, idgrado_instruccion, idocupacion, sexo, ingreso_mensual, idusuario)  
+			values 
+			(".$formulario["idsolicitante"].", '".$formulario["razon_social_fami"]."', '".$formulario["cedula_fami"]."', '".$formulario["edad_fami"]."', '$f_nacimiento',
+			'".$formulario["parentesco_fami"]."', '".$formulario["grado_fami"]."', '".$formulario["ocupacion_fami"]."', '".$formulario["sexo_fami"]."', '".to_moneda_bd($formulario["ingreso_fami"])."', '".$_SESSION["idusuario"]."')";
             $insertado=$this->Ejecutarsql($sentencia_sql);
             
         }//if
@@ -1026,15 +1032,17 @@
     function actualizar_persona_informe($formulario)
     {
         $respuesta= new xajaxResponse();
-        
         if (($formulario["idsolicitante"]>0) && ($formulario["idpersona"]>0))
         {
 
             if (!$formulario["parentesco_fami"]>0)  $formulario["parentesco_fami"]="12";
             if (!$formulario["grado_fami"]>0)  $formulario["grado_fami"]="118";
             if (!$formulario["ocupacion_fami"]>0)  $formulario["ocupacion_fami"]="9";       
-            
-            $sentencia_sql="update nucleo_familiar_nuevos set razon_social='".$formulario["razon_social_fami"]."', cedula='".$formulario["cedula_fami"]."', edad='".$formulario["edad_fami"]."', idparentesco='".$formulario["parentesco_fami"]."', idgrado_instruccion='".$formulario["grado_fami"]."', idocupacion='".$formulario["ocupacion_fami"]."', sexo='".$formulario["sexo_fami"]."', ingreso_mensual='".to_moneda_bd($formulario["ingreso_fami"])."' where idregistro=".$formulario["idpersona"];
+            $f_nacimiento = ($formulario["f_nacimiento"] != '') ? date_to_db($formulario["f_nacimiento"]) : '' ;
+			
+            $sentencia_sql="update nucleo_familiar_nuevos set razon_social='".$formulario["razon_social_fami"]."', cedula='".$formulario["cedula_fami"]."', 
+			edad='".$formulario["edad_fami"]."', f_nacimiento = '$f_nacimiento',  idparentesco='".$formulario["parentesco_fami"]."', idgrado_instruccion='".$formulario["grado_fami"]."',
+			idocupacion='".$formulario["ocupacion_fami"]."', sexo='".$formulario["sexo_fami"]."', ingreso_mensual='".to_moneda_bd($formulario["ingreso_fami"])."' where idregistro=".$formulario["idpersona"];
             $actualizado=$this->Ejecutarsql($sentencia_sql);            
         
         }//if
@@ -1045,6 +1053,7 @@
             $respuesta->assign("razon_social_fami", "value", "");
             $respuesta->assign("cedula_fami", "value", "");
             $respuesta->assign("edad_fami", "value", "");
+			$respuesta->assign("f_nacimiento", "value", "");
             $respuesta->assign("parentesco_fami", "value", "0");
             $respuesta->assign("grado_fami", "value", "0");
             $respuesta->assign("ocupacion_fami", "value", "0");

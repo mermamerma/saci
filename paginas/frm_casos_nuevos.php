@@ -3,6 +3,9 @@
     require_once("../librerias/db_postgresql.inc.php");
     require_once('../librerias/funciones_ajax.php');
     require_once('../cdatos/ccasos.php');
+	include_once('aplicaciones.php');
+	
+	validar_sesion();
 	
     $xajax= new xajax();
     

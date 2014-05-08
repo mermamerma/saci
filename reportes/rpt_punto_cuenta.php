@@ -27,7 +27,7 @@ class MYPDF extends TCPDF
             // Set font
             $this->SetFont('times', 'I', 8);
             // Page number
-            $this->Cell(0, 10, "SACi - Sistema de Atención al Ciudadano, Generado el ".fechaactual()." por ".$this->author.".   Página ".$this->getAliasNumPage()."/".$this->getAliasNbPages(), 0, 0, 'C');
+            $this->Cell(0, 10, "SACi - Sistema de Atención al Ciudadano, Generado el ".fechaactual()."  Página ".$this->getAliasNumPage()."/".$this->getAliasNbPages(), 0, 0, 'C');
 	}
 
 }//class

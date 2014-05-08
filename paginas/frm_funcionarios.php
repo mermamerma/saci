@@ -1,6 +1,9 @@
 <?
 	require_once("../librerias/db_postgresql.inc.php");
 	require_once("../cdatos/cfuncionarios.php");
+	include_once('aplicaciones.php');
+	
+	validar_sesion();
 ?>
 
 

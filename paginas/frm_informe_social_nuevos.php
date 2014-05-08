@@ -5,7 +5,10 @@
     require_once('../librerias/funciones_ajax.php');
     require_once('../cdatos/csolicitantes.php');
     require_once('../cdatos/ccasos.php');
+	require_once('aplicaciones.php');
 
+	validar_sesion();
+	
 	$xajax= new xajax();
 	
 
@@ -44,6 +47,10 @@
 
         <style>
             body {padding:0px;margin:0px;text-align:left;font:11px verdana, arial, helvetica, serif; background-color:#FFFFFF;}
+			.resaltar {
+		    	background-color: #F5FFD7;
+			    cursor: pointer;
+			}
         </style>
         <script language="javascript">
 
@@ -160,7 +167,7 @@
                         break;
                 }
             }
-
+			/*
             function inicio()
             {
                 if(self.gfPop)
@@ -168,7 +175,15 @@
                         gfPop.fPopCalendar(document.frminforme.f_inicio);
                 }
             }
-
+			
+			function inicio()
+            {
+                if(self.gfPop)
+                {
+                        gfPop.fPopCalendar(document.frminforme.f_inicio);
+                }
+            }
+			*/
             function cambio_inicio()
             {
                 if (inicio=='')
@@ -397,14 +412,13 @@
         $csolic=new csolicitantes();
         $ccaso=new ccasos();
 
-        if (isset($_REQUEST["accion"]) && $_REQUEST["accion"]=="guardar")
-        {
+        if (isset($_REQUEST["accion"]) && $_REQUEST["accion"]=="guardar")     {
 
             $csolic->set_idcaso_informe($_REQUEST["idcaso"]);
             $csolic->set_razon_social($_REQUEST["razon_social_solic"]);
             $csolic->set_cedula($_REQUEST["cedula"]);
             $csolic->set_sexo($_REQUEST["sexo"]);
-            $csolic->set_fecha_nac($_REQUEST["fecha_inicio"]);
+            $csolic->set_fecha_nac($_REQUEST["f_inicio"]);
             $csolic->set_lugar_nac($_REQUEST["lugar_nac"]);
             $csolic->set_idnacionalidad($_REQUEST["nacionalidad"]);
             $csolic->set_idocupacion($_REQUEST["ocupacion"]);
@@ -425,7 +439,7 @@
             $csolic->set_idsolicitante($_REQUEST["idsolicitante"]);
 
             $nsolic_act=$csolic->Update_Solic_Benef_Caso_nuevos();
-
+			//var_dump($_REQUEST); exit;
             if (!$nsolic_act>0)
             {
                 mensaje("Han Ocurrido Errores al Intentar Actualizar el Solicitante");
@@ -449,7 +463,7 @@
             $csolic->set_misiones($smisiones);
 
             $sservicio="";
-            if ($_REQUEST["idservicio"])
+            if (@$_REQUEST["idservicio"])
             {
                 foreach ($_REQUEST["idservicio"] as $valor)
                 {
@@ -596,7 +610,7 @@
             <form name="frminforme" id="frminforme" method="post" action="frm_informe_social_nuevos.php">
                 <input type="hidden" id="idcaso" name="idcaso" value="<?= $_REQUEST['idcaso'] ?>">
                 <input type="hidden" name="fecha_inicio" id="fecha_inicio"  value="<? echo $_REQUEST["fecha_inicio"];?>">
-                <input type="hidden" id="accion" name="accion" value="<?= $_REQUEST['accion'] ?>">                
+                <input type="hidden" id="accion" name="accion" value="<?= @$_REQUEST['accion'] ?>">                
                 <input type="hidden" id="idsolicitante" name="idsolicitante" value="<?= $_REQUEST['idsolicitante'] ?>">
                 <input type="hidden" id="idinforme" name="idinforme" value="<?= $_REQUEST['idinforme'] ?>">
             
@@ -637,56 +651,40 @@
                             <tr>
                                 <td colspan="5" style="border:#CCCCCC solid 1px;" bgcolor="#F8F8F8" >
                                     <div align="center" style="background-image: url('../comunes/imagenes/barra.png');">
-                                        <strong>Datos del Caso</strong>
-                                    </div>
-                                </td>
+                                        <strong>Datos del Caso</strong>                                    </div>                                </td>
                             </tr>
 
                                <tr>
                                 <td>&nbsp;</td>
                                 <td>
                                     <strong>
-                                        Remitente:
-                                    </strong>
-                                </td>
+                                        Remitente:                                    </strong>                                </td>
                                 <td>
-                                    <input name="sremitente" type="text" class="inputbox" id="sremitente" readonly maxlength="80" value="<?= $_REQUEST['sremitente'] ?>">
-                                </td>
+                                    <input name="sremitente" type="text" class="inputbox" id="sremitente" readonly maxlength="80" value="<?= $_REQUEST['sremitente'] ?>">                                </td>
                                 <td>
                                     <strong>
-                                        Responsable:
-                                    </strong>
-                                </td>
+                                        Responsable:                                    </strong>                                </td>
                                 <td>
-                                    <input name="responsable" type="text" class="inputbox" id="responsable" readonly maxlength="80" value="<?= $_REQUEST['responsable'] ?>">
-                                </td>
+                                    <input name="responsable" type="text" class="inputbox" id="responsable" readonly maxlength="80" value="<?= $_REQUEST['responsable'] ?>">                                </td>
                             </tr>
                                 <tr>
                                 <td>&nbsp;</td>
                                 <td>
                                     <strong>
-                                        Descripci&oacute;n del Caso:
-                                    </strong>
-                                </td>
+                                        Descripci&oacute;n del Caso:                                    </strong>                                </td>
 
                                 <td colspan="3">
-                                    <textarea name="descripcion_caso" id="descripcion_caso" rows="5" class="inputbox" onkeypress="return validar_texto(this.form,this,event,'')" readonly  style="width:474px; height:95px; margin-bottom:10px;"><?if(isset($_REQUEST["descripcion_caso"])){echo $_REQUEST["descripcion_caso"];}?></textarea>
-                                </td>
-
+                                    <textarea name="descripcion_caso" id="descripcion_caso" rows="5" class="inputbox" onkeypress="return validar_texto(this.form,this,event,'')" readonly  style="width:474px; height:95px; margin-bottom:10px;"><?if(isset($_REQUEST["descripcion_caso"])){echo $_REQUEST["descripcion_caso"];}?></textarea>                                </td>
                                 </tr>
 
                                  <tr>
                                 <td>&nbsp;</td>
                                 <td>
                                     <strong>
-                                        Estatus Actual:
-                                    </strong>
-                                </td>
+                                        Estatus Actual:                                    </strong>                                </td>
                                 <td>
                                    <strong>
-                                        <? echo $_REQUEST["sestatus_actual"]; ?>
-                                    </strong>
-                                </td>
+                                        <? echo $_REQUEST["sestatus_actual"]; ?>                                    </strong>                                </td>
                                 <td><strong>
                                         Asignar Estatus:
                                     </strong></td>
@@ -705,43 +703,34 @@
 
                                 <td colspan="6" style="border:#CCCCCC solid 1px;" bgcolor="#F8F8F8" >
                                     <div align="center" style="background-image: url('../comunes/imagenes/barra.png');">
-                                        <strong>Datos del Solicitante</strong>
-                                    </div>
-                                </td>
+                                        <strong>Datos del Solicitante</strong>                                    </div>                                </td>
                             </tr>
                                  <tr>
                                 <td>&nbsp;</td>
 
                                 <td>
-                                    <strong>Razon Social:</strong>
-                                </td>
+                                    <strong>Razon Social:</strong>                                </td>
                                 <td colspan="3">
-                                    <input name="razon_social_solic" type="text" class="inputbox" id="razon_social_solic" onkeypress="return validar_texto(this.form,this,event,'')" style="width:474px;" maxlength="80" value="<?= $_REQUEST['razon_social_solic'] ?>">
-                                </td>
+                                    <input name="razon_social_solic" type="text" class="inputbox" id="razon_social_solic" onkeypress="return validar_texto(this.form,this,event,'')" style="width:474px;" maxlength="80" value="<?= $_REQUEST['razon_social_solic'] ?>">                                </td>
                             </tr>
 
                             <tr>
                                 <td>&nbsp;</td>
                                 <td>
                                     <strong>
-                                        C&eacute;dula:
-                                    </strong>
-                                </td>
+                                        C&eacute;dula:                                    </strong>                                </td>
                                 <td>
                                     <label>
                                         <input name="cedula" type="text" class="inputbox" id="cedula" maxlength="12" onkeypress="return CedulaFormat(this,'Cédula de Identidad Invalida',-1,true,event)" onmouseout="UnTip()" value="<?= $_REQUEST['cedula'] ?>" ></input>
-                                    </label>
-                                </td>
+                                    </label>                                </td>
                                 <td>
-                                    <strong>Sexo:</strong>
-                                </td>
+                                    <strong>Sexo:</strong>                                </td>
                                 <td>
                                      <select name="sexo" id="sexo" style="width:160px;" class="inputbox">
                                             <option value="" <? if ($_REQUEST["sexo"]=="") echo "selected";   ?> >Seleccione...</option>
                                             <option value="M" <? if ($_REQUEST["sexo"]=="M") echo "selected";   ?>>Masculino</option>
                                             <option value="F" <? if ($_REQUEST["sexo"]=="F") echo "selected";   ?>>Femenino</option>
-                                    </select>
-                                </td>
+                                    </select>                                </td>
                             </tr>
 
 
@@ -749,79 +738,69 @@
                                 <td>&nbsp;</td>
                                 <td>
                                     <strong>
-                                        Lugar de Nacimiento:
-                                    </strong>
-                                </td>
+                                        Lugar de Nacimiento:                                    </strong>                                </td>
                                 <td>
                                     <label>
                                         <input name="lugar_nac" type="text" class="inputbox" id="lugar_nac" maxlength="50" onkeypress="return validar_texto(this.form,this,event,'')" value="<?= $_REQUEST['lugar_nac'] ?>" ></input>
-                                    </label>
-                                </td>
+                                    </label>                                </td>
                                 <td>
-                                    <strong>Fecha de Nacimiento:</strong>
-                                </td>
+                                    <strong>Fecha de Nacimiento:</strong>                                </td>
                                 <td>
-                                    <input class="inputbox_fecha" name="f_inicio"  id="f_inicio"  onchange="cambio_inicio();" value="<? echo $_REQUEST["fecha_inicio"];?>" size="10"   readonly="true" />
-                                    <a href="javascript:void(0)"  onclick="inicio();" hidefocus><img class="PopcalTrigger"  style="width:36px; height:19px;  margin-left:5px;" align="absbottom" src="../comunes/calendar/btn_dis_cal.gif"  border="0" alt="" /></a>
-                                    <!--  Calendario  -->
-                                    <iframe width=174 height=189 name="gToday:normal:agenda.js" id="gToday:normal:agenda.js" src="../comunes/calendar/ipopeng.htm" scrolling="no" frameborder="0" style="visibility:visible; z-index:999; position:absolute; top:-500px; left:-500px;"></iframe>
-                                    <!--  Calendario  -->
-                                </td>
+									<input class="inputbox_fecha" name="f_inicio"  id="f_inicio"  onchange="" value="<? echo $_REQUEST["fecha_inicio"];?>" size="10"   readonly="true" />
+                      				<a href="javascript:void(0)"  onclick="f_nacimiento();" hidefocus><img class="PopcalTrigger"  style="width:36px; height:19px;  margin-left:5px;" align="absbottom" src="../comunes/calendar/btn_dis_cal.gif"  border="0" alt="" /></a>
+									<!--  Calendario  -->
+									<iframe width=174 height=189 name="gToday:normal:agenda.js" id="gToday:normal:agenda.js" src="../comunes/calendar/ipopeng.htm" scrolling="no" frameborder="0" style="visibility:visible; z-index:999; position:absolute; top:-500px; left:-500px;"></iframe>
+									<script>
+									function f_nacimiento() {
+										if(self.gfPop) {
+											gfPop.fPopCalendar(document.frminforme.f_inicio);
+										}
+								}
+									</script>
+								   </td>
                             </tr>
 
                             <tr>
                                 <td>&nbsp;</td>
                                 <td>
                                     <strong>
-                                        Nacionalidad:
-                                    </strong>
-                                </td>
+                                        Nacionalidad:                                    </strong>                                </td>
                                 <td>
                                     <select name="nacionalidad" id="nacionalidad" style="width:160px;" class="inputbox">
                                     <option value="0">Seleccione...</option>
                                     <?php
                                     echo ($dat->Cargarlista("select idmaestro, descripcion from vnacionalidad where estatus=1 order by descripcion", $_REQUEST["nacionalidad"]));
                                     ?>
-                                    </select>
-                                </td>
+                                    </select>                                </td>
                                 <td>
                                     <strong>
-                                        Ocupaci&oacute;n:
-                                    </strong>
-                                </td>
+                                        Ocupaci&oacute;n:                                    </strong>                                </td>
                                 <td>
                                     <select name="ocupacion" id="ocupacion" style="width:160px;" class="inputbox">
                                     <option value="0">Seleccione...</option>
                                     <?php
                                     echo ($dat->Cargarlista("select idmaestro, descripcion from vocupacion where estatus=1 order by descripcion", $_REQUEST["ocupacion"]));
                                     ?>
-                                    </select>
-                                </td>
+                                    </select>                                </td>
                             </tr>
 
                             <tr>
                                 <td>&nbsp;</td>
                                 <td>
                                     <strong>
-                                        Grado de Instrucci&oacute;n:
-                                    </strong>
-                                </td>
+                                        Grado de Instrucci&oacute;n:                                    </strong>                                </td>
                                 <td>
                                     <select name="grado_solic" id="grado_solic" style="width:160px;" class="inputbox">
                                     <option value="0">Seleccione...</option>
                                     <?php
                                         echo ($dat->Cargarlista("select idmaestro, descripcion from vgrado_instruccion where estatus=1 order by descripcion", $_REQUEST["grado_solic"]));
                                     ?>
-                                    </select>
-                                </td>
+                                    </select>                                </td>
                                 <td>
                                     <strong>
-                                        Ingreso Mensual:
-                                    </strong>
-                                </td>
+                                        Ingreso Mensual:                                    </strong>                                </td>
                                 <td>
-                                    <input name="ingreso_solic" type="text" class="inputbox" id="ingreso_solic" maxlength="14" style="width:160px;" onkeypress="return validar_monto2(this.form,this,event,'')" value="<?= $_REQUEST['ingreso_solic'] ?>" ></input>
-                                </td>
+                                    <input name="ingreso_solic" type="text" class="inputbox" id="ingreso_solic" maxlength="14" style="width:160px;" onkeypress="return validar_monto2(this.form,this,event,'')" value="<?= $_REQUEST['ingreso_solic'] ?>" ></input>                                </td>
                             </tr>
 
 
@@ -829,53 +808,42 @@
                                 <td>&nbsp;</td>
                                 <td>
                                     <strong>
-                                        Parentesco:
-                                    </strong>
-                                </td>
+                                        Parentesco:                                    </strong>                                </td>
                                 <td>
                                     <select name="parentesco_solic" id="parentesco_solic" style="width:160px;" class="inputbox">
                                     <option value="0">Seleccione...</option>
                                     <?php
                                         echo ($dat->Cargarlista("select idmaestro, descripcion from vparentesco where estatus=1 order by descripcion", $_REQUEST["parentesco_solic"]));
                                     ?>
-                                    </select>
-                                </td>
+                                    </select>                                </td>
                                 <td>
-                                    <strong>Telefono(s):</strong>
-                                </td>
+                                    <strong>Telefono(s):</strong>                                </td>
                                 <td>
-                                    <input name="telefonos" type="text" class="inputbox" id="telefonos" onkeypress="return validar_texto(this.form,this,event,'')" style="width:160px;" maxlength="100" value="<?= $_REQUEST['telefonos'] ?>">
-                                </td>
+                                    <input name="telefonos" type="text" class="inputbox" id="telefonos" onkeypress="return validar_texto(this.form,this,event,'')" style="width:160px;" maxlength="100" value="<?= $_REQUEST['telefonos'] ?>">                                </td>
                             </tr>
 
                             <tr>
                                 <td>&nbsp;</td>
                                 <td>
                                     <strong>
-                                        Estado Civil:
-                                    </strong>
-                                </td>
+                                        Estado Civil:                                    </strong>                                </td>
                                 <td>
                                     <select name="civil" id="civil" style="width:160px;" class="inputbox">
                                     <option value="0">Seleccione...</option>
                                     <?php
                                     echo ($dat->Cargarlista("select idmaestro, descripcion from vestado_civil where estatus=1 order by descripcion", $_REQUEST["civil"]));
                                     ?>
-                                    </select>
-                                </td>
+                                    </select>                                </td>
                                 <td>
                                     <strong>
-                                        Estado:
-                                    </strong>
-                                </td>
+                                        Estado:                                    </strong>                                </td>
                                 <td>
                                     <select name="estado" id="estado" style="width:160px;" class="inputbox" onchange='cargaContenido_Estados(this.id)'>
                                     <option value="0">Seleccione...</option>
                                     <?php
                                     echo ($dat->Cargarlista("select idestado, descripcion from estados order by descripcion", $_REQUEST["estado"]));
                                     ?>
-                                    </select>
-                                </td>
+                                    </select>                                </td>
                             </tr>
 
 
@@ -883,105 +851,83 @@
                                 <td>&nbsp;</td>
                                 <td>
                                     <strong>
-                                        Municipio:
-                                    </strong>
-                                </td>
+                                        Municipio:                                    </strong>                                </td>
                                 <td>
                                     <select name="municipio" id="municipio" style="width:160px;" class="inputbox" onchange='cargaContenido_Estados(this.id)'>
                                     <option value="0">Seleccione...</option>
                                     <?php
                                     echo ($dat->Cargarlista("select idmunicipio, descripcion from municipios where idestado=".$_REQUEST["estado"]." order by descripcion", $_REQUEST["municipio"]));
                                     ?>
-                                    </select>
-                                </td>
+                                    </select>                                </td>
                                 <td>
                                     <strong>
-                                        Parroquia:
-                                    </strong>
-                                </td>
+                                        Parroquia:                                    </strong>                                </td>
                                 <td>
                                     <select name="parroquia" id="parroquia" style="width:160px;" class="inputbox">
                                     <option value="0">Seleccione...</option>
                                     <?php
                                     echo ($dat->Cargarlista("select idparroquia, descripcion from parroquias where idmunicipio=".$_REQUEST["municipio"]." order by descripcion", $_REQUEST["parroquia"]));
                                     ?>
-                                    </select>
-                                </td>
+                                    </select>                                </td>
                             </tr>
 
                            <tr>
                                 <td>&nbsp;</td>
                                 <td>
                                     <strong>
-                                        Tipo de Solicitante:
-                                    </strong>
-                                </td>
+                                        Tipo de Solicitante:                                    </strong>                                </td>
                                 <td>
                                      <select name="tipo_solicitante" id="tipo_solicitante" style="width:160px;" class="inputbox">
                                     <option value="0">Seleccione...</option>
                                     <?php
                                     echo ($dat->Cargarlista("select idmaestro, descripcion from vtipo_solicitantes where estatus=1 order by descripcion", $_REQUEST["tipo_solicitante"]));
                                     ?>
-                                    </select>
-                                </td>
+                                    </select>                                </td>
                                 <td><strong>
                                         Edad:
-                                    </strong>
-                                </td>
+                                    </strong>                                </td>
                                 <td>
-                                    <input name="edad_solic" type="text" class="inputbox" id="edad_solic" maxlength="2" style="width:70px;" onkeypress="return validar_num(this.form,this,event,'')" value="<?= $_REQUEST['edad_solic'] ?>" ></input>
-                                </td>
+                                    <input name="edad_solic" type="text" class="inputbox" id="edad_solic" maxlength="2" style="width:70px;" onkeypress="return validar_num(this.form,this,event,'')" value="<?= $_REQUEST['edad_solic'] ?>" ></input>                                </td>
                             </tr>
 
                             <tr>
                                 <td>&nbsp;</td>
 
                                 <td>
-                                    <strong>Comunidad:</strong>
-                                </td>
+                                    <strong>Comunidad:</strong>                                </td>
                                 <td colspan="3">
-                                    <input name="comunidad" type="text" class="inputbox" id="comunidad" onkeypress="return validar_texto(this.form,this,event,'')" style="width:474px;" maxlength="80" value="<?= $_REQUEST['comunidad'] ?>"></input>
-                                </td>
+                                    <input name="comunidad" type="text" class="inputbox" id="comunidad" onkeypress="return validar_texto(this.form,this,event,'')" style="width:474px;" maxlength="80" value="<?= $_REQUEST['comunidad'] ?>"></input>                                </td>
                             </tr>
                                 
                             <tr>
                                 <td>&nbsp;</td>
                                 <td>
                                     <strong>
-                                        Direcci&oacute;n:
-                                    </strong>
-                                </td>
+                                        Direcci&oacute;n:                                    </strong>                                </td>
 
 
                                 <td colspan="3">
-                                   <textarea name="direccion" id="direccion" rows="5" class="inputbox" onkeypress="return validar_texto(this.form,this,event,'')"  style="width:474px; height:95px; margin-bottom:10px;" <?if(isset($_REQUEST["accion"]) && $_REQUEST["accion"]=="consultar"){echo"readonly='readonly'";}?>><?if(isset($_REQUEST["descripcion_caso"])){echo $_REQUEST["direccion"];}?></textarea>
-                                </td>
-
+                                   <textarea name="direccion" id="direccion" rows="5" class="inputbox" onkeypress="return validar_texto(this.form,this,event,'')"  style="width:474px; height:95px; margin-bottom:10px;" <?if(isset($_REQUEST["accion"]) && $_REQUEST["accion"]=="consultar"){echo"readonly='readonly'";}?>><?if(isset($_REQUEST["descripcion_caso"])){echo $_REQUEST["direccion"];}?></textarea>                                </td>
                                 </tr>
                                 
                                 <tr>
                                 <td colspan="6" style="border:#CCCCCC solid 1px;" bgcolor="#F8F8F8" >
                                     <div align="center" style="background-image: url('../comunes/imagenes/barra.png');">
-                                        <strong>Educaci&oacute;n</strong>
-                                    </div>
-                                </td>
+                                        <strong>Educaci&oacute;n</strong>                                    </div>                                </td>
                             </tr>
 
                             <tr>
                             <td>&nbsp;</td>
                             <td>&nbsp; </td>
                             <td colspan="4" width="100%">
-                            <div id="dvMisiones" align="center"></div>
-                            </td>
+                            <div id="dvMisiones" align="center"></div>                            </td>
                             </tr>
 
 
                                 <tr>
                                 <td colspan="6" style="border:#CCCCCC solid 1px;" bgcolor="#F8F8F8" >
                                     <div align="center" style="background-image: url('../comunes/imagenes/barra.png');">
-                                        <strong>Caracter&iacute;sticas de la Vivienda</strong>
-                                    </div>
-                                </td>
+                                        <strong>Caracter&iacute;sticas de la Vivienda</strong>                                    </div>                                </td>
                             </tr>
 
 
@@ -989,153 +935,134 @@
                                 <td>&nbsp;</td>
                                 <td>
                                     <strong>
-                                        Tipo de Vivienda:
-                                    </strong>
-                                </td>
+                                        Tipo de Vivienda:                                    </strong>                                </td>
                                 <td>
                                     <select name="tipo_vivienda" id="tipo_vivienda" style="width:160px;" class="inputbox">
                                     <option value="0">Seleccione...</option>
                                     <?php
                                     echo ($dat->Cargarlista("select idmaestro, descripcion from vtipo_vivienda where estatus=1 order by descripcion", $_REQUEST["tipo_vivienda"]));
                                     ?>
-                                    </select>
-                                </td>
+                                    </select>                                </td>
                                 <td>
                                     <strong>
-                                        Tenencia de la Vivienda:
-                                    </strong>
-                                </td>
+                                        Tenencia de la Vivienda:                                    </strong>                                </td>
                                 <td>
                                     <select name="tenencia_vivienda" id="tenencia_vivienda" style="width:160px;" class="inputbox">
                                     <option value="0">Seleccione...</option>
                                     <?php
                                     echo ($dat->Cargarlista("select idmaestro, descripcion from vtenencia_vivienda where estatus=1 order by descripcion", $_REQUEST["tenencia_vivienda"]));
                                     ?>
-                                    </select>
-                                </td>
+                                    </select>                                </td>
                             </tr>
 
                             <tr>
                             <td>&nbsp;</td>
                             <td>&nbsp; </td>
                             <td colspan="4" width="100%">
-                            <div id="dvServicios" align="center"></div>
-                            </td>
+                            <div id="dvServicios" align="center"></div>                            </td>
                             </tr>
 
                                   <tr>
                                 <td>&nbsp;</td>
                                 <td>
                                     <strong>
-                                        &Aacute;rea F&iacute;sico - Ambiental:
-                                    </strong>
-                                </td>
+                                        &Aacute;rea F&iacute;sico - Ambiental:                                    </strong>                                </td>
 
 
                                 <td colspan="3">
-                                   <textarea name="area_fisico" id="area_fisico" rows="5" class="inputbox" onkeypress="return validar_texto(this.form,this,event,'')"  style="width:474px; height:95px; margin-bottom:10px;" <?if(isset($_REQUEST["accion"]) && $_REQUEST["accion"]=="consultar"){echo"readonly='readonly'";}?>><?if(isset($_REQUEST["area_fisico"])){echo $_REQUEST["area_fisico"];}?></textarea>
-                                </td>
-
+                                   <textarea name="area_fisico" id="area_fisico" rows="5" class="inputbox" onkeypress="return validar_texto(this.form,this,event,'')"  style="width:474px; height:95px; margin-bottom:10px;" <?if(isset($_REQUEST["accion"]) && $_REQUEST["accion"]=="consultar"){echo"readonly='readonly'";}?>><?if(isset($_REQUEST["area_fisico"])){echo $_REQUEST["area_fisico"];}?></textarea>                                </td>
                                 </tr>
 
                                 <tr>
                                 <td colspan="6" style="border:#CCCCCC solid 1px;" bgcolor="#F8F8F8" >
                                     <div align="center" style="background-image: url('../comunes/imagenes/barra.png');">
-                                        <strong>Perfil SocioEcon&oacute;mico del N&uacute;cleo Familiar</strong>
-                                    </div>
-                                </td>
+                                        <strong>Perfil SocioEcon&oacute;mico del N&uacute;cleo Familiar</strong>                                    </div>                                </td>
                             </tr>
 
                              <tr>
                                 <td>&nbsp;</td>
                                 <td>
                                     <strong>
-                                        &Aacute;rea Socio Econ&oacute;mica:
-                                    </strong>
-                                </td>
+                                        &Aacute;rea Socio Econ&oacute;mica:                                    </strong>                                </td>
 
 
                                 <td colspan="3">
-                                   <textarea name="area_economica" id="area_economica" rows="5" class="inputbox" onkeypress="return validar_texto(this.form,this,event,'')"  style="width:474px; height:95px; margin-bottom:10px;" <?if(isset($_REQUEST["accion"]) && $_REQUEST["accion"]=="consultar"){echo"readonly='readonly'";}?>><?if(isset($_REQUEST["area_economica"])){echo $_REQUEST["area_economica"];}?></textarea>
-                                </td>
-
+                                   <textarea name="area_economica" id="area_economica" rows="5" class="inputbox" onkeypress="return validar_texto(this.form,this,event,'')"  style="width:474px; height:95px; margin-bottom:10px;" <?if(isset($_REQUEST["accion"]) && $_REQUEST["accion"]=="consultar"){echo"readonly='readonly'";}?>><?if(isset($_REQUEST["area_economica"])){echo $_REQUEST["area_economica"];}?></textarea>                                </td>
                                 </tr>
 
                               <tr>
                                 <td>&nbsp;</td>
                                 <td>
                                     <strong>
-                                        Condiciones de Salud:
-                                    </strong>
-                                </td>
+                                        Condiciones de Salud:                                    </strong>                                </td>
 
 
                                 <td colspan="3">
-                                   <textarea name="salud" id="salud" rows="5" class="inputbox" onkeypress="return validar_texto(this.form,this,event,'')"  style="width:474px; height:95px; margin-bottom:10px;" <?if(isset($_REQUEST["accion"]) && $_REQUEST["accion"]=="consultar"){echo"readonly='readonly'";}?>><?if(isset($_REQUEST["salud"])){echo $_REQUEST["salud"];}?></textarea>
-                                </td>
-
+                                   <textarea name="salud" id="salud" rows="5" class="inputbox" onkeypress="return validar_texto(this.form,this,event,'')"  style="width:474px; height:95px; margin-bottom:10px;" <?if(isset($_REQUEST["accion"]) && $_REQUEST["accion"]=="consultar"){echo"readonly='readonly'";}?>><?if(isset($_REQUEST["salud"])){echo $_REQUEST["salud"];}?></textarea>                                </td>
                                 </tr>
 
                                 <tr>
                                 <td>&nbsp;</td>
                                 <td>
                                     <strong>
-                                        Observaci&oacute;n
-                                    </strong>
-                                </td>
+                                        Observaci&oacute;n                                    </strong>                                </td>
 
 
                                 <td colspan="3">
-                                   <textarea name="observacion" id="observacion" rows="5" class="inputbox" onkeypress="return validar_texto(this.form,this,event,'')"  style="width:474px; height:95px; margin-bottom:10px;" <?if(isset($_REQUEST["accion"]) && $_REQUEST["accion"]=="consultar"){echo"readonly='readonly'";}?>><?if(isset($_REQUEST["observacion"])){echo $_REQUEST["observacion"];}?></textarea>
-                                </td>
-
+                                   <textarea name="observacion" id="observacion" rows="5" class="inputbox" onkeypress="return validar_texto(this.form,this,event,'')"  style="width:474px; height:95px; margin-bottom:10px;" <?if(isset($_REQUEST["accion"]) && $_REQUEST["accion"]=="consultar"){echo"readonly='readonly'";}?>><?if(isset($_REQUEST["observacion"])){echo $_REQUEST["observacion"];}?></textarea>                                </td>
                                 </tr>
                              
                             <tr>
                                 <td>&nbsp;</td>
                                 <td>
                                     <strong>
-                                        Razon Social:
-                                    </strong>
-                                </td>
+                                    Nombre y Apellidos:</strong> 
+								</td>
                                 <td>
                                     <label>
                                         <input name="razon_social_fami" type="text" class="inputbox" id="razon_social_fami" onkeypress="return validar_texto(this.form,this,event,'')" maxlength="50" value="<?= @$_REQUEST['razon_social_fami'] ?>" ></input>
                                         <input type="hidden" id="idpersona" name="idpersona" value="">
-                                    </label>
-                                </td>
+										<b style="color:#FF0000">(*)</b>
+                                    </label>                                </td>
                                 <td>
-                                    <strong>C&eacute;dula:</strong>
-                                </td>
+                                    <strong>C&eacute;dula:</strong>                                </td>
                                 <td>
-                                    <input name="cedula_fami" type="text" class="inputbox" id="cedula_fami" maxlength="12" onkeypress="return CedulaFormat(this,'Cédula de Identidad Invalida',-1,true,event)" onmouseout="UnTip()" value="<?= @$_REQUEST['cedula_fami'] ?>" ></input>
-                                </td>
+                                    <input name="cedula_fami" type="text" class="inputbox" id="cedula_fami" maxlength="12" onkeypress="return CedulaFormat(this,'Cédula de Identidad Invalida',-1,true,event)" onmouseout="UnTip()" value="<?= @$_REQUEST['cedula_fami'] ?>" ></input>                                </td>
                             </tr>
 
 
                             <tr>
+                              <td>&nbsp;</td>
+                              <td><strong> Edad: </strong> </td>
+                              <td><input name="edad_fami" type="text" class="inputbox" id="edad_fami" maxlength="2" onkeypress="return validar_num(this.form,this,event,'')" value="<?= @$_REQUEST['edad_fami'] ?>"></td>
+                              <td><strong>Fecha Nacimiento: </strong></td>
+                              <td>
+							  <input class="inputbox_fecha" name="f_nacimiento"  id="f_nacimiento"  onchange="" value="" size="10"   readonly="true" />
+			                      	<a href="javascript:void(0)"  onclick="inicio();" hidefocus><img class="PopcalTrigger"  style="width:36px; height:19px;  margin-left:5px;" align="absbottom" src="../comunes/calendar/btn_dis_cal.gif"  border="0" alt="" /></a>
+									<!--  Calendario  -->
+									<iframe width=174 height=189 name="gToday:normal:agenda.js" id="gToday:normal:agenda.js" src="../comunes/calendar/ipopeng.htm" scrolling="no" frameborder="0" style="visibility:visible; z-index:999; position:absolute; top:-500px; left:-500px;"></iframe>
+									<script>
+									function inicio() {
+									if(self.gfPop) {
+										gfPop.fPopCalendar(document.frminforme.f_nacimiento);
+									}
+									}
+									</script>
+							</td>
+                            </tr>
+                            <tr>
                                 <td>&nbsp;</td>
+                                <td><strong>Parentesco:</strong> </td>
                                 <td>
-                                    <strong>
-                                        Edad:
-                                    </strong>
-                                </td>
-                                <td>
-                                    <label>
-                                        <input name="edad_fami" type="text" class="inputbox" id="edad_fami" maxlength="2" onkeypress="return validar_num(this.form,this,event,'')" value="<?= @$_REQUEST['edad_fami'] ?>" ></input>
-                                    </label>
-                                </td>
-                                <td>
-                                    <strong>Parentesco:</strong>
-                                </td>
-                                <td>
-                                   <select name="parentesco_fami" id="parentesco_fami" style="width:160px;" class="inputbox">
-                                    <option value="0">Seleccione...</option>
-                                    <?php
-                                    echo ($dat->Cargarlista("select idmaestro, descripcion from vparentesco where estatus=1 order by descripcion", $_REQUEST["parentesco_fami"]));
+                                    <label></input>
+                                    </label>                                <select name="parentesco_fami" id="parentesco_fami" style="width:160px;" class="inputbox">
+                                      <option value="0">Seleccione...</option>
+                                      <?php
+                                    echo ($dat->Cargarlista("select idmaestro, descripcion from vparentesco where estatus=1 order by descripcion", @$_REQUEST["parentesco_fami"]));
                                     ?>
-                                    </select>
-                                </td>
+                                    </select></td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
                             </tr>
 
 
@@ -1143,59 +1070,54 @@
                                 <td>&nbsp;</td>
                                 <td>
                                     <strong>
-                                        Grado de Instrucci&oacute;n:
-                                    </strong>
-                                </td>
+                                        Grado de Instrucci&oacute;n:                                    </strong>                                </td>
                                 <td>
                                     <label>
                                        <select name="grado_fami" id="grado_fami" style="width:160px;" class="inputbox">
                                     <option value="0">Seleccione...</option>
                                     <?php
-                                    echo ($dat->Cargarlista("select idmaestro, descripcion from vgrado_instruccion where estatus=1 order by descripcion", $_REQUEST["grado_fami"]));
+                                    echo ($dat->Cargarlista("select idmaestro, descripcion from vgrado_instruccion where estatus=1 order by descripcion", @$_REQUEST["grado_fami"]));
                                     ?>
                                     </select>
-                                    </label>
-                                </td>
+                                    </label>                                </td>
                                 <td>
-                                    <strong>Ocupaci&oacute;n:</strong>
-                                </td>
+                                    <strong>Ocupaci&oacute;n:</strong>                                </td>
                                 <td>
                                    <select name="ocupacion_fami" id="ocupacion_fami" style="width:160px;" class="inputbox">
                                     <option value="0">Seleccione...</option>
                                     <?php
                                     echo ($dat->Cargarlista("select idmaestro, descripcion from vocupacion where estatus=1 order by descripcion", $_REQUEST["ocupacion_fami"]));
                                     ?>
-                                    </select>
-                                </td>
+                                    </select>                                </td>
                             </tr>
 
                              <tr>
+                               <td>&nbsp;</td>
+                               <td><strong>Sexo:</strong></td>
+                               <td><select name="sexo_fami" id="sexo_fami" style="width:160px;" class="inputbox">
+                                 <option value="" <? if (@$_REQUEST["sexo_fami"]=="") echo "selected";   ?>>Seleccione...</option>
+                                 <option value="M" <? if (@$_REQUEST["sexo_fami"]=="M") echo "selected";   ?>>Masculino</option>
+                                 <option value="F" <? if (@$_REQUEST["sexo_fami"]=="F") echo "selected";   ?>>Femenino</option>
+                               </select></td>
+                               <td><strong>Ingreso Mensual:</strong> </td>
+                               <td>
+							   		<input name="ingreso_fami" type="text" class="inputbox" id="ingreso_fami" maxlength="14" style="width:130px;" onkeypress="return validar_monto2(this.form,this,event,'')" value="<?= @$_REQUEST['ingreso_fami'] ?>" ></input>
+									<b style="color:#FF0000">(*)</b>
+                                <a  href="javascript:nueva_persona()"><img src="../comunes/imagenes/user_add.png" onmouseover="Tip('Nuevo Familiar')" onmouseout="UnTip()" style="margin-left:5px; margin-right:5px;" width="16" height="16" border="0" /></a>							   </td>
+                             </tr>
+                             <tr>
                                 <td>&nbsp;</td>
-                                <td><strong>Sexo:</strong></td>
-                                <td>
-                                    <label>
-                                        <select name="sexo_fami" id="sexo_fami" style="width:160px;" class="inputbox">
-                                            <option value="" <? if (@$_REQUEST["sexo_fami"]=="") echo "selected";   ?>>Seleccione...</option>
-                                            <option value="M" <? if (@$_REQUEST["sexo_fami"]=="M") echo "selected";   ?>>Masculino</option>
-                                            <option value="F" <? if (@$_REQUEST["sexo_fami"]=="F") echo "selected";   ?>>Femenino</option>
-                                    </select>
-                                    </label>
-                                </td>
-                                <td>
-                                    <strong>Ingreso Mensual:</strong>
-                                </td>
-                                <td>
-                                    <input name="ingreso_fami" type="text" class="inputbox" id="ingreso_fami" maxlength="14" style="width:130px;" onkeypress="return validar_monto2(this.form,this,event,'')" value="<?= @$_REQUEST['ingreso_fami'] ?>" ></input>
-                                     <a  href="javascript:nueva_persona()"><img src="../comunes/imagenes/user_add.png" onmouseover="Tip('Nuevo Familiar')" onmouseout="UnTip()" style="margin-left:5px; margin-right:5px;" width="16" height="16" border="0" /></a>
-                                </td>
+                                <td>&nbsp;</td>
+		                        <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
                             </tr>
 
 
 
                             <tr>
                                 <td colspan="6">
-                                    <div id="capaFamiliar" style="overflow:auto">                                        
-                                    </div>
+                                    <div id="capaFamiliar" style="overflow:auto">                                    </div>
 									<br />
 									<div align="center">
 									 	<?   if ((@$_REQUEST["accion"]!="consultar") && ($_REQUEST["idestatus_caso"]!=PRE_APROBADO || $_REQUEST["idestatus_caso"]!=CERRADO))  {  ?>
@@ -1205,9 +1127,7 @@
 										?>
 										<img src="../comunes/imagenes/printer.png" onmouseover="Tip('Imprimir Informe')" onmouseout="UnTip()" border="0" onclick="javascript:imprimir('<?=$_REQUEST["idcaso"]?>')"/>
 										<?  }   ?>
-										<img src="../comunes/imagenes/door_in.png" onmouseover="Tip('Cerrar')" onmouseout="UnTip()" border="0" onclick="javascript:cerrar()"/>
-									</div>
-                                </td>
+										<img src="../comunes/imagenes/door_in.png" onmouseover="Tip('Cerrar')" onmouseout="UnTip()" border="0" onclick="javascript:cerrar()"/>									</div>                                </td>
                             </tr>
 
                             
@@ -1222,9 +1142,7 @@
                                 <td colspan="6" style="border:#CCCCCC solid 1px;">
                                     <div align="center" style="background-image: url('../comunes/imagenes/barra.png')">
                                         <br>
-                                    </div>
-								
-                                </td>
+                                    </div>                                </td>
                             </tr>
                         </table>
 						

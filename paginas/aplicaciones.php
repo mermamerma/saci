@@ -1,5 +1,23 @@
 <?php
 
+function redirecciona($url,$target){
+   	echo "<script>alert('Su sesión ha expirado. Inicie nuevamente..!');window.open('".$url."','".$target."');</script>";
+} 
+
+function validar_sesion() {
+	if (!isset($_SESSION['idusuario']) OR $_SESSION['idusuario'] == '')
+		redirecciona('cerrar_sesion.php', '_parent') ;
+}
+
+function to_minuscula($input) {
+	return mb_strtolower($input,'UTF-8') ;
+}
+
+
+function to_mayuscula($input) {
+	return mb_strtoupper($input,'UTF-8') ;
+}
+
 function date_to_db($date,$input = '/', $output = '-'){
 	if ($date != '') 
 		return  implode($output, array_reverse(explode($input,$date)));

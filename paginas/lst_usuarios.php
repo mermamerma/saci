@@ -3,7 +3,8 @@
     include_once('aplicaciones.php');
     require_once("../cdatos/ccasos.php");
     $ccaso=new ccasos();
-
+	
+	validar_sesion();
    
 	if (isset($_REQUEST["accion"])) 
 	{

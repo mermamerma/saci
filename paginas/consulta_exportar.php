@@ -10,10 +10,10 @@
 
 <?
   
-        header('Content-type: application/vnd.ms-excel');
-        header("Content-Disposition: attachment; filename=consulta_casos.xls");
-        header("Pragma: no-cache");
-        header("Expires: 0");
+        #header('Content-type: application/vnd.ms-excel');
+        #header("Content-Disposition: attachment; filename=consulta_casos.xls");
+        #header("Pragma: no-cache");
+        #header("Expires: 0");
   
         require_once("../librerias/db_postgresql.inc.php");
         ob_end_clean();
@@ -81,7 +81,7 @@
 		$filtro="";
 
                 //echo $sql;
-
+		
                 $sql="select vc.idcaso, vc.descripcion_caso, vc.fecha_registro, vc.sremitente, vc.stipocaso, vc.scategoria, vc.sestatus_caso, vc.sestado, vc.smunicipio, vc.sparroquia, case when vc.instruccion='1' then 'SI' when vc.instruccion='0' then 'NO' end as sinstruccion,
                 vc.razon_social_benef, vc.edad_benef, vc.fecha_nac_benef, vc.lugar_nac_benef, vc.snacionalidad_benef, vc.socupacion_benef, vc.scivil_benef, vc.sestado_benef, vc.smunicipio_benef, vc.sparroquia_benef, vc.sparentesco_benef,
                 vc.sgrado_instruccion_benef, vc.ingreso_mensual_benef, vc.stipo_solicitante_benef, case when vc.sexo_benef='M' then 'Masculino' when vc.sexo_benef='F' then 'Femenino' end as ssexo_benef,
@@ -91,9 +91,12 @@
                 vs.stipo_vivienda, vs.stenencia_vivienda from vcasos vc left join vinforme_social vs on vc.idsolicitante=vs.idsolicitante ".$_SESSION["filtro_caso"]." order by idcaso desc";
 
                 //echo $sql;
-                
+				#die($_SESSION["filtro_caso"]) ;
+                ##die($_SESSION['consulta_sql']) ;
+				#die($sql) ;
+				var_dump($_SESSION); exit;
                 $dat->Conectar();
-                $rscaso=new Recordset($sql, $dat->conn);
+                $rscaso=new Recordset($_SESSION['consulta_sql'], $dat->conn);
                 $ind=1;
 
                 

@@ -166,6 +166,10 @@ function validar_vacio($valor)
     }
 }//validar_vacio
 
+function to_moneda2($input){
+	return number_format($input,2,',' ,'.') ;
+}
+
 function to_moneda($string)
 {
 
@@ -248,7 +252,7 @@ function to_moneda($string)
             $Done = "-" . $Done;
         }
 
-        return $Done;
+		return $Done;
 
     }
 }
@@ -395,8 +399,9 @@ function punto($moneda)
 function to_fecha_bd($fec)// dd/mm/yyyy to yyyy/mm/dd
 {
 
-    if (validar_vacio($fec)) return '';
-    else if ($fec=='NULL') return 'NULL';
+    if (validar_vacio($fec)) return NULL;
+	if ($fec == '') return NULL;
+    else if ($fec=='NULL') return NULL;
 
     $day='';
     $mes='';

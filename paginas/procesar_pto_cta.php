@@ -2,6 +2,9 @@
 
 require_once("../librerias/db_postgresql.inc.php");
 require_once ('../cdatos/cpuntos.php');
+require_once('aplicaciones.php');
+
+validar_sesion();
 
 $id_caso	= $_POST['id_caso'] ;
 $id_pto_cta	= $_POST['id_pto_cta'] ;

@@ -215,14 +215,14 @@ function Conectar(){
 		$B_strhost="10.11.11.9";
 		$B_strusuario="saci";
 		$B_strpassword="s@c1atencion1";
-		$B_strbd="tierra_fertil";
+		$B_strbd="saci";
 		$B_strpuerto="5432";
-		 
+		
 		/*
 		$B_strhost="localhost";
 		$B_strusuario="postgres";
 		$B_strpassword="postgres";
-		$B_strbd="tierra_fertil";
+		$B_strbd="saci";
 		$B_strpuerto="5432";
 		*/
 		
@@ -231,7 +231,7 @@ function Conectar(){
 			$B_strhost="10.11.11.9";
 			$B_strusuario="saci";
 			$B_strpassword="s@c1atencion1";
-			$B_strbd="tierra_fertil";
+			$B_strbd="saci";
 			$B_strpuerto="5432";
 	}
 
@@ -1127,9 +1127,11 @@ function Ejecutarsql($sql)
 {
     $this->Conectar();
     $this->cadena_error=$sql;
-	$resultado = pg_query($this->conn,$sql);
-	if ($resultado == FALSE or $resultado === FALSE)
-		die('Error on Driver DB...! </br><b>Contacte al Administrador del Sistema</b>') ;		
+	$resultado = @pg_query($this->conn,$sql);
+	if ($resultado == FALSE or $resultado === FALSE){
+		die("<b>Error on Driver DB...! </b></br><b>Sentencia: </b>$sql  </br><b>Descripción: </b>".pg_last_error()) ; 
+		exit;		
+	}
 	else
 		return $resultado;
 	# return pg_query($this->conn,$sql);

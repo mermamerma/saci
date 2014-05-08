@@ -80,7 +80,8 @@ a:hover {
        <?php
 
 		require_once("../librerias/db_postgresql.inc.php");
-		
+		ini_set('session.gc_maxlifetime', 1800);
+
 		if (isset($_SESSION["idusuario"])) {redirect("principal.php", "_self"); exit;}
 		
 		if (isset($_REQUEST["accion"]) && $_REQUEST["accion"]=="validar")

@@ -4,6 +4,8 @@
     include_once('aplicaciones.php');
     include_once('../librerias/funciones_ajax.php');
 
+	validar_sesion();
+	
     $xajax= new xajax();
     $xajax->setFlag('debug',false);
     $xajax->configure('javascript URI', '../comunes/xajax/');

@@ -1,5 +1,6 @@
 <?php
     include_once('aplicaciones.php');
+	validar_sesion();
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -34,9 +35,10 @@
 			}
 		}
 
-	function exportar()
+	function exportar(modo)
 	{
-		window.open('consulta_exportar.php', 'exportacion');
+		// window.open('consulta_exportar.php', 'exportacion');
+		window.open('consulta_exportar_mod.php?modo='+modo, '_blank',true);
 	}
 
     function consultar()
@@ -106,10 +108,14 @@
 
 
 	 <?
+		if (isset($_SESSION["filtro_caso"])) $_SESSION["filtro_caso"] = '';					
             require_once("../librerias/db_postgresql.inc.php");
             echo "<td width=\"4%\" align=\"center\"><a href=\"javascript:consultar()\"><img  alt=\"Consultar Caso\" title=\"Consultar Caso\" src=\"../comunes/imagenes/folder_explore.png\" style=\"width: 20px;\" border=\"0\"/></a> </td>";
             echo "<td width=\"4%\" align=\"center\"><a href=\"javascript:buscar('dvBusqueda')\"><img  alt=\"Búsqueda Avanzada\" title=\"Búsqueda Avanzada\" src=\"../comunes/imagenes/folder_find.png\" style=\"width: 20px;\" border=\"0\"/></a> </td>";
-            echo "<td width=\"4%\" align=\"center\"><a href=\"javascript:exportar()\"><img  alt=\"Exportar a Calc\" title=\"Exportar a Calc\" src=\"../comunes/imagenes/page_excel.png\" border=\"0\"/></a> </td>";
+		if (isset($_SESSION["consulta_sql"])) {
+            echo "<td width=\"4%\" align=\"center\"><a href=\"javascript:exportar('xls')\"><img  alt=\"Exportar a Excel\" title=\"Exportar a Excel\" src=\"../comunes/imagenes/page_excel.png\" border=\"0\"/></a> </td>";
+			echo "<td width=\"4%\" align=\"center\"><a href=\"javascript:exportar('pdf')\"><img  alt=\"Exportar a PDF\" title=\"Exportar a PDF\" style=\"width: 20px;\" src=\"../comunes/imagenes/page_white_acrobat.png\" border=\"0\"/></a> </td>";
+		}
 			
 				$textout='';
 
@@ -117,25 +123,29 @@
                 /*$sql="select idcaso, sremitente, razon_social_solic, razon_social_benef, idestatus, sestatus_caso,
                     (select vu.snombre_usuario from vusuarios vu inner join casos_analistas cs on vu.idusuario=cs.idanalista where cs.idcaso=vcasos.idcaso and cs.estatus_asignacion='0') as sanalista from vcasos ";*/
 					
-				$sql="select c.idcaso, c.idremitente,r.descripcion AS sremitente, 
-						s.razon_social as razon_social_solic, b.razon_social as razon_social_benef, 
-						c.idestatus, e.descripcion AS sestatus_caso,(u.nombres::text || ' '::text) || u.apellidos::text as sanalista
-						from casos_actuales c
-						left join solicitantes_actuales s on c.idsolicitante = s.idsolicitante
-						LEFT JOIN solicitantes_actuales b ON c.idbeneficiario = b.idsolicitante
-						inner join maestro e on e.idmaestro = c.idestatus
-						left join maestro r on r.idmaestro = c.idremitente
-						left join casos_analistas_actuales a on a.idcaso=c.idcaso and a.estatus_asignacion='0'
-						left join sis_usuarios u on u.idusuario=a.idanalista";	
-                $filtro=" where c.idcaso>0 ";
-                $_SESSION["filtro_caso"]=" where idcaso>0 ";
+				$sql = "select c.idcaso, c.idsolicitante, c.idremitente,c.idestatus,
+					r.descripcion AS sremitente,  
+					s.razon_social as razon_social_solic, b.razon_social as razon_social_benef, sum(nfnv.ingreso_mensual) as ingreso_familiar,
+					TO_CHAR(c.fecha_registro,'DD/MM/YYYY') as fecha_registro, TO_CHAR(c.fecha_proceso,'DD/MM/YYYY HH:MI AM') as fecha_proceso,
+					e.descripcion AS sestatus_caso,(u.nombres::text || ' '::text) || u.apellidos::text as sanalista
+					FROM casos_actuales c
+					LEFT JOIN solicitantes_actuales s on c.idsolicitante = s.idsolicitante
+					LEFT JOIN solicitantes_actuales b ON c.idbeneficiario = b.idsolicitante
+					LEFT join maestro e on e.idmaestro = c.idestatus
+					LEFT JOIN maestro r on r.idmaestro = c.idremitente
+					LEFT JOIN casos_analistas_actuales a on a.idcaso=c.idcaso and a.estatus_asignacion='0'
+					LEFT JOIN sis_usuarios u on u.idusuario=a.idanalista
+					LEFT JOIN nucleo_familiar_nuevos nfnv on c.idsolicitante = nfnv.idsolicitante ";	
+                $filtro = " where c.idcaso>0 ";
+                $_SESSION["filtro_caso"]=" where c.idcaso>0 ";
 
 		if (isset($_REQUEST["accion"]) && $_REQUEST["accion"]=="buscar") 
 		{
-                 
+					
 					if ($_REQUEST['num_caso']!="")
                     {
                         $filtro.=" and c.idcaso=".$_REQUEST["num_caso"]; 
+						$_SESSION["filtro_caso"].=" and c.idcaso=".$_REQUEST["num_caso"];
                     }
 					
                     if (!validar_id_vacio($_REQUEST["remitente"]))
@@ -238,19 +248,20 @@
                     {
                         $f_inicio = date_to_db($_REQUEST["f_inicio"]);
 						$filtro .=  " AND c.fecha_registro >= '$f_inicio'";
-                        $_SESSION["filtro_f_inicio"].= "AND c.fecha_registro >= '$f_inicio'";
+                        $_SESSION["filtro_caso"].= "AND c.fecha_registro >= '$f_inicio'";
                     }
 					if ($_REQUEST["f_fin"] !='')
                     {
                         $f_fin = date_to_db($_REQUEST["f_fin"]);
 						$filtro .=  " AND c.fecha_registro <= '$f_fin'";
-                        $_SESSION["filtro_f_inicio"].= "AND c.fecha_registro <= '$f_fin'";
+                        $_SESSION["filtro_caso"].= "AND c.fecha_registro <= '$f_fin'";
                     }
                      
 		}
                 
-		$sql.= $filtro." order by c.idcaso desc";
-
+		$sql.= $filtro." GROUP BY c.idcaso, c.idsolicitante, c.idremitente,c.idestatus, r.descripcion, 
+		s.razon_social,  b.razon_social, e.descripcion, u.nombres, u.apellidos,c.fecha_registro, c.fecha_proceso ORDER BY c.idcaso desc ";
+		$_SESSION["consulta_sql"] = $sql ;
 		#echo $sql; die();
 	 ?>
 
@@ -269,17 +280,14 @@
                 <tr>
                 <td colspan="6" style="border:#CCCCCC solid 1px;" bgcolor="#F8F8F8" >
                 <div align="center" style="background-image: url('../comunes/imagenes/barra.png');">
-                    <strong>B&uacute;squeda General</strong>
-                </div>
-                </td>
+                    <strong>B&uacute;squeda General</strong>                </div>                </td>
                 </tr>
 				<tr>
 					<td width="1">&nbsp;</td>
 					<td width="95"><strong>Nº de Caso</strong></td>
 					<td width="176">
-						<input name="num_caso" type="text" class="inputbox" id="num_caso"  value=""></input>
-					</td>
-					<td width="89"></td>
+						<input name="num_caso" type="text" class="inputbox" id="num_caso"  value=""></input>					</td>
+					<td width="89">&nbsp;</td>
 					<td width="199">&nbsp;	</td>
 				</tr>
                 <tr>
@@ -291,8 +299,7 @@
 							<?php
 							echo ($dat->Cargarlista("select idmaestro, descripcion from vremitentes where estatus=1 order by descripcion", $_REQUEST["remitente"]));
 							?>
-                        </select>
-                    </td>
+                        </select>                    </td>
                     <td width="89"><strong>Tipo de Caso:</strong></td>
                     <td width="199">
                         <select name="tipo_caso" id="tipo_caso" style="width:166px;" class="inputbox" onchange='cargaContenido_Categoria(this.id)' >
@@ -300,8 +307,7 @@
                         <?php
                         echo ($dat->Cargarlista("select idmaestro, descripcion from vtipos_casos order by descripcion", $_REQUEST["tipo_caso"]));
                         ?>
-                        </select>
-                    </td>
+                        </select>                    </td>
                 </tr>
 
                 <tr>
@@ -312,14 +318,12 @@
                         <select name="categoria" id="categoria" style="width:166px;" class="inputbox" onchange='cargaContenido_Categoria(this.id)' >
                         <option value="0">Seleccione...</option>
                         </select>
-                        </label>
-                    </td>
+                        </label>                    </td>
                     <td width="89"><strong>Subcategor&iacute;a:</strong></td>
                     <td width="199">
                         <select name="subcategoria" id="subcategoria" style="width:166px;" class="inputbox" >
                         <option value="0">Seleccione...</option>
-                        </select>
-                    </td>
+                        </select>                    </td>
                 </tr>
 
                 <tr>
@@ -355,98 +359,94 @@
                     echo ($dat->Cargarlista("select idparroquia, descripcion from parroquias where idmunicipio=".$_REQUEST["municipio"]." order by descripcion", $_REQUEST["parroquia"]));
                     ?>
                     </select>
-                    </label>
-                    </td>
+                    </label>                    </td>
                     <td width="89"><strong>Estatus del Caso:</strong></td>
                     <td width="199"><select name="estatus" id="estatus" style="width:166px;" class="inputbox">
                     <option value="0">Seleccione...</option>
                     <?php
                     echo ($dat->Cargarlista("select idmaestro, descripcion from vestatus_casos order by descripcion", $_REQUEST["estatus"]));
                     ?>
-                    </select>
-                    </td>
+                    </select>                    </td>
                 </tr>
 				                <tr>
+				                  <td>&nbsp;</td>
+				                  <td><strong>Desde la Fecha:</strong></td>
+				                  <td><input class="inputbox_fecha" name="f_inicio"  id="f_inicio"  onchange="" value="" size="10"   readonly="true" />
+                                    <a href="javascript:void(0)"  onclick="inicio();" hidefocus><img class="PopcalTrigger"  style="width:36px; height:19px;  margin-left:5px;" align="absbottom" src="../comunes/calendar/btn_dis_cal.gif"  border="0" alt="" /></a>
+                                    <!--  Calendario  -->
+                                    <iframe width=174 height=189 name="gToday:normal:agenda.js" id="gToday:normal:agenda.js" src="../comunes/calendar/ipopeng.htm" scrolling="no" frameborder="0" style="visibility:visible; z-index:999; position:absolute; top:-500px; left:-500px;"></iframe></td>
+				                  <td><strong>Hasta la Fecha </strong></td>
+				                  <td><input class="inputbox_fecha" name="f_fin"  id="f_fin"  onchange="" value="" size="10"   readonly="true" />
+                                    <a href="javascript:void(0)"  onclick="fin();" hidefocus><img class="PopcalTrigger"  style="width:36px; height:19px;  margin-left:5px;" align="absbottom" src="../comunes/calendar/btn_dis_cal.gif"  border="0" alt="" /></a>
+                                    <!--  Calendario  -->
+                                    <iframe width=174 height=189 name="gToday:normal:agenda.js" id="gToday:normal:agenda.js" src="../comunes/calendar/ipopeng.htm" scrolling="no" frameborder="0" style="visibility:visible; z-index:999; position:absolute; top:-500px; left:-500px;"></iframe></td>
+               </tr>
+				                <tr>
                     <td width="1">&nbsp;</td>
-                    <td width="95"><strong>Desde la Fecha:</strong></td>
-                    <td width="176"><input class="inputbox_fecha" name="f_inicio"  id="f_inicio"  onchange="" value="" size="10"   readonly="true" />
-                      <a href="javascript:void(0)"  onclick="inicio();" hidefocus><img class="PopcalTrigger"  style="width:36px; height:19px;  margin-left:5px;" align="absbottom" src="../comunes/calendar/btn_dis_cal.gif"  border="0" alt="" /></a>
-						<!--  Calendario  -->
-						<iframe width=174 height=189 name="gToday:normal:agenda.js" id="gToday:normal:agenda.js" src="../comunes/calendar/ipopeng.htm" scrolling="no" frameborder="0" style="visibility:visible; z-index:999; position:absolute; top:-500px; left:-500px;"></iframe>
-						<!--  Calendario  -->
-						</td>
-                    <td width="89"><strong>Hasta la Fecha </strong></td>
-                    <td width="199">
-						<input class="inputbox_fecha" name="f_fin"  id="f_fin"  onchange="" value="" size="10"   readonly="true" />
-                      	<a href="javascript:void(0)"  onclick="fin();" hidefocus><img class="PopcalTrigger"  style="width:36px; height:19px;  margin-left:5px;" align="absbottom" src="../comunes/calendar/btn_dis_cal.gif"  border="0" alt="" /></a>
-						<!--  Calendario  -->
-						<iframe width=174 height=189 name="gToday:normal:agenda.js" id="gToday:normal:agenda.js" src="../comunes/calendar/ipopeng.htm" scrolling="no" frameborder="0" style="visibility:visible; z-index:999; position:absolute; top:-500px; left:-500px;"></iframe>						
-					</td>
+                    <td width="95"><input type="button" id="btnFiltrar2" name="btnFiltrar2" value="Filtrar" onclick="filtrar();" /></td>
+                    <td width="176">&nbsp;</td>
+                    <td width="89">&nbsp;</td>
+                    <td width="199">&nbsp;</td>
                 </tr>
                 <tr>
 					<td colspan="6" style="border:#CCCCCC solid 1px;" bgcolor="#F8F8F8" >
 						<div align="center" style="background-image: url('../comunes/imagenes/barra.png');">
-							<strong>Solicitante</strong>
-						</div>
-					</td>
+							<strong>Solicitante</strong>						</div>					</td>
                 </tr>
                 <tr>
                     <td width="1">&nbsp;</td>
                     <td width="95"><strong>C&eacute;dula:</strong></td>
                     <td width="176">
-						<input name="cedula_solic" type="text" class="inputbox" id="cedula_solic" onkeypress="return CedulaFormat(this,'Cédula de Identidad Invalida',-1,true,event)" onmouseout="UnTip()" maxlength="12" value="" ></input>
-                    </td>
+						<input name="cedula_solic" type="text" class="inputbox" id="cedula_solic" onkeypress="return CedulaFormat(this,'Cédula de Identidad Invalida',-1,true,event)" onmouseout="UnTip()" maxlength="12" value="" ></input>                    </td>
                     <td width="89"><strong>R.I.F:</strong></td>
                     <td width="199">
-						<input name="rif_solic" type="text" class="inputbox" id="rif_solic" onkeypress="return RifFormat(this.form,'Rif del Solicitante Invalido',-1,true,event)" onmouseout="UnTip()" maxlength="12" value="" ></input>
-                    </td>
+						<input name="rif_solic" type="text" class="inputbox" id="rif_solic" onkeypress="return RifFormat(this.form,'Rif del Solicitante Invalido',-1,true,event)" onmouseout="UnTip()" maxlength="12" value="" ></input>                    </td>
                 </tr>
                 <tr>
-					<td width="1">&nbsp;</td>
-					<td width="95">
-						<strong>Raz&oacute;n Social:</strong>
-					</td>
-					<td width="176">
-							<input name="razon_social_solic" type="text" class="inputbox" id="razon_social_solic" onkeypress="return validar_texto(this.form,this,event,'')" value=""></input>
-					</td>
-					<td width="89"><strong>Tipo de Solicitante:</strong></td>
-					<td width="199">
-						<select name="tipo_solicitante" id="tipo_solicitante" style="width:166px;" class="inputbox">
-							<option value="0">Seleccione...</option>
-							<?php
+                  <td>&nbsp;</td>
+                  <td><strong>Raz&oacute;n Social:</strong> </td>
+                  <td><input name="razon_social_solic" type="text" class="inputbox" id="razon_social_solic" onkeypress="return validar_texto(this.form,this,event,'')" value="" /></td>
+                  <td><strong>Tipo de Solicitante:</strong></td>
+                  <td><select name="tipo_solicitante" id="tipo_solicitante" style="width:166px;" class="inputbox">
+                    <option value="0">Seleccione...</option>
+                    <?php
 							echo ($dat->Cargarlista("select idmaestro, descripcion from vtipo_solicitantes where estatus=1 order by descripcion", $_REQUEST["tipo_solicitante"]));
 							?>
-						</select>
-                    </td>
+                  </select></td>
                 </tr>
+                <tr>
+                  <td>&nbsp;</td>
+                  <td><span style="border:#CCCCCC solid 1px;">
+                    <input type="button" id="btnFiltrar22" name="btnFiltrar22" value="Filtrar" onclick="filtrar();" />
+                  </span></td>
+                  <td>&nbsp;</td>
+                  <td>&nbsp;</td>
+                  <td>&nbsp;</td>
+                </tr>
+                
+                
                 <tr>
 					<td colspan="6" style="border:#CCCCCC solid 1px;" bgcolor="#F8F8F8" >
 						<div align="center" style="background-image: url('../comunes/imagenes/barra.png');">
-							<strong>Beneficiario</strong>
-						</div>
-					</td>
+							<strong>Beneficiario</strong>						</div>					</td>
                 </tr>
                  <tr>
                     <td width="1">&nbsp;</td>
                     <td width="95"><strong>C&eacute;dula:</strong></td>
                     <td width="176">
-						<input name="cedula_benef" type="text" class="inputbox" id="cedula_benef" onkeypress="return CedulaFormat(this,'Cédula de Identidad Invalida',-1,true,event)" onmouseout="UnTip()" maxlength="12" value="" ></input>
-                    </td>
+						<input name="cedula_benef" type="text" class="inputbox" id="cedula_benef" onkeypress="return CedulaFormat(this,'Cédula de Identidad Invalida',-1,true,event)" onmouseout="UnTip()" maxlength="12" value="" ></input>                    </td>
                     <td width="89"><strong>R.I.F:</strong></td>
                     <td width="199">
-						<input name="rif_benef" type="text" class="inputbox" id="rif_benef" onkeypress="return RifFormat(this,'Rif del Beneficiario Invalido',-1,true,event)" onmouseout="UnTip()" maxlength="12" value="" ></input>
-                    </td>
+						<input name="rif_benef" type="text" class="inputbox" id="rif_benef" onkeypress="return RifFormat(this,'Rif del Beneficiario Invalido',-1,true,event)" onmouseout="UnTip()" maxlength="12" value="" ></input>                    </td>
                 </tr>
                 <tr>
 					<td width="1">&nbsp;</td>
 					<td width="95">
-						<strong>Raz&oacute;n Social:</strong>
-					</td>
+						<strong>Raz&oacute;n Social:</strong>					</td>
 					<td width="176">
 						<label>
 							<input name="razon_social_benef" type="text" class="inputbox" id="razon_social_benef" onkeypress="return validar_texto(this.form,this,event,'')" value=""></input>
-						</label>
-					</td>
+						</label>					</td>
 					<td width="89"><strong>Tipo de Beneficiario:</strong></td>
 						<td width="199">
 							<select name="tipo_beneficiario" id="tipo_beneficiario" style="width:166px;" class="inputbox">
@@ -454,23 +454,19 @@
 							<?php
 							echo ($dat->Cargarlista("select idmaestro, descripcion from vtipo_solicitantes where estatus=1 order by descripcion", $_REQUEST["tipo_beneficiario"]));
 							?>
-							</select>
-                    </td>
+							</select>                    </td>
                 </tr>
                 <tr>
 					<td>&nbsp;</td>
-					<td>&nbsp;</td>
+					<td><input type="button" id="btnFiltrar" name="btnFiltrar" value="Filtrar" onclick="filtrar();" /></td>
 				</tr>
 				<tr>
-					<td colspan="5" align="center">
-						<input type="button" id="btnFiltrar" name="btnFiltrar" value="Filtrar" onclick="filtrar();">
-					</td>
+					<td colspan="5" align="center">&nbsp;</td>
 				</tr>
 					<td colspan="6" style="border:#CCCCCC solid 1px;">
 						<div align="center" style="background-image: url('../comunes/imagenes/barra.png')">
 							<br>
-						</div>
-					</td>
+						</div>					</td>
 				</tr>
             </table>
         </div>

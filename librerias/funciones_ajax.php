@@ -553,7 +553,7 @@ function editar_persona($idsolicitante, $idpersona)
     $respuesta= new xajaxResponse();    
     $ccaso=new ccasos();
     
-    $sql="select idregistro, razon_social, cedula, edad, idparentesco, idgrado_instruccion, idocupacion, ingreso_mensual, sexo from nucleo_familiar_nuevos where idregistro=".$idpersona;
+    $sql="select idregistro, razon_social, cedula, edad, TO_CHAR(f_nacimiento, 'DD/MM/YYYY') as f_nacimiento, idparentesco, idgrado_instruccion, idocupacion, ingreso_mensual, sexo from nucleo_familiar_nuevos where idregistro=".$idpersona;
     $ccaso->Conectar();
     
     $rs_persona=new Recordset($sql, $ccaso->conn);
@@ -564,6 +564,7 @@ function editar_persona($idsolicitante, $idpersona)
         $respuesta->assign("razon_social_fami", "value", $rs_persona->rowset["razon_social"]);
         $respuesta->assign("cedula_fami", "value", $rs_persona->rowset["cedula"]);
         $respuesta->assign("edad_fami", "value", $rs_persona->rowset["edad"]);
+		$respuesta->assign("f_nacimiento", "value", $rs_persona->rowset["f_nacimiento"]);
         $respuesta->assign("parentesco_fami", "value", $rs_persona->rowset["idparentesco"]);
         $respuesta->assign("grado_fami", "value", $rs_persona->rowset["idgrado_instruccion"]);
         $respuesta->assign("ocupacion_fami", "value", $rs_persona->rowset["idocupacion"]);
@@ -582,12 +583,12 @@ function guardar_persona($formulario, $mostrar)
 
     $idcaso=$formulario["idcaso"];
     $swerror=false;
-
+	
     if ($mostrar==false)
     {
         if(validar_vacio($formulario["razon_social_fami"])==true)
         {
-            $respuesta->script("alert('Debe Introducir la Razon Social del Familiar');");
+            $respuesta->script("alert('Debe Introducir los Nombres y los Apellidos del Familiar');");
             $swerror=true;
         }else if (validar_vacio($formulario["ingreso_fami"])==true)
         {
@@ -604,9 +605,10 @@ function guardar_persona($formulario, $mostrar)
 
     $html="<table width=\"100%\" border=\"1\" style=\"margin-top:10px;\">
     <tr class=\"encabezado_tablas\">
-    <td align=\"center\"><strong>Raz&oacute;n Social</strong></td>
+    <td align=\"center\"><strong>Nombres y Apellidos</strong></td>
     <td align=\"center\"><strong>C.I.</strong></td>
     <td align=\"center\"><strong>Edad</strong></td>
+	<td align=\"center\"><strong>Fecha Nacimiento</strong></td>
     <td align=\"center\"><strong>Parentesco</strong></td>
     <td align=\"center\"><strong>Grado de Instrucci&oacute;n</strong></td>
     <td align=\"center\"><strong>Ocupaci&oacute;n</strong></td>
@@ -616,17 +618,17 @@ function guardar_persona($formulario, $mostrar)
     </tr>";
 
     $ccaso->Conectar();
-    $sql="select idregistro, idsolicitante, razon_social, cedula, edad, idparentesco, (select descripcion from vparentesco where idmaestro=idparentesco) as sparentesco,idgrado_instruccion, (select descripcion from vgrado_instruccion where idmaestro=idgrado_instruccion) as sgrado_instruccion,idocupacion, (select descripcion from vocupacion where idmaestro=idocupacion) as socupacion,ingreso_mensual, sexo, case when sexo='M' then 'Masculino' when sexo='F' then 'Femenino' else '' end as ssexo from nucleo_familiar_nuevos where idsolicitante=".$formulario["idsolicitante"]." order by edad";
+    $sql="select idregistro, idsolicitante, razon_social, cedula, edad, TO_CHAR(f_nacimiento, 'DD/MM/YYYY') as f_nacimiento,  idparentesco, (select descripcion from vparentesco where idmaestro=idparentesco) as sparentesco,idgrado_instruccion, (select descripcion from vgrado_instruccion where idmaestro=idgrado_instruccion) as sgrado_instruccion,idocupacion, (select descripcion from vocupacion where idmaestro=idocupacion) as socupacion,ingreso_mensual, sexo, case when sexo='M' then 'Masculino' when sexo='F' then 'Femenino' else '' end as ssexo from nucleo_familiar_nuevos where idsolicitante=".$formulario["idsolicitante"]." order by edad";
     
     $rs_familiar=new Recordset($sql, $ccaso->conn);
 	//print_r($rs_familiar);
 
-    while($rs_familiar->Mostrar())
-    {
-        $html.="<tr>
+    while($rs_familiar->Mostrar())     {
+        $html.="<tr  onmouseover=\"this.className = 'resaltar'\" onmouseout=\"this.className = null\">
         <td align=\"left\">".$rs_familiar->rowset["razon_social"]."</td>
         <td align=\"left\">".$rs_familiar->rowset["cedula"]."</td>
         <td align=\"center\">".$rs_familiar->rowset["edad"]."</td>
+		 <td align=\"center\">".$rs_familiar->rowset["f_nacimiento"]."</td>
         <td align=\"left\">".$rs_familiar->rowset["sparentesco"]."</td>
         <td align=\"left\">".$rs_familiar->rowset["sgrado_instruccion"]."</td>
         <td align=\"left\">".$rs_familiar->rowset["socupacion"]."</td>
@@ -646,13 +648,15 @@ function guardar_persona($formulario, $mostrar)
     $respuesta->assign("razon_social_fami", "value", "");
     $respuesta->assign("cedula_fami", "value", "");
     $respuesta->assign("edad_fami", "value", "");
+	$respuesta->assign("f_nacimiento", "value", "");
     $respuesta->assign("parentesco_fami", "value", "0");
     $respuesta->assign("grado_fami", "value", "0");
     $respuesta->assign("ocupacion_fami", "value", "0");
     $respuesta->assign("sexo_fami", "value", "");
     $respuesta->assign("ingreso_fami", "value", "");
     
-    $respuesta->assign("capaFamiliar","innerHTML",$html);
+    $respuesta->assign("capaFamiliar","innerHTML",$html);	 
+	 
     return $respuesta;
 
 }
@@ -673,6 +677,7 @@ function eliminar_persona($idsolicitante, $idregistro)
     <td align=\"center\"><strong>Raz&oacute;n Social</strong></td>
     <td align=\"center\"><strong>C.I.</strong></td>
     <td align=\"center\"><strong>Edad</strong></td>
+	 <td align=\"center\"><strong>Fecha Nacimeinto</strong></td>
     <td align=\"center\"><strong>Parentesco</strong></td>
     <td align=\"center\"><strong>Grado de Instrucci&oacute;n</strong></td>
     <td align=\"center\"><strong>Ocupaci&oacute;n</strong></td>
@@ -696,6 +701,7 @@ function eliminar_persona($idsolicitante, $idregistro)
             <td align=\"left\">".$rs_familiar->rowset["razon_social"]."</td>
             <td align=\"left\">".$rs_familiar->rowset["cedula"]."</td>
             <td align=\"center\">".$rs_familiar->rowset["edad"]."</td>
+			<td align=\"center\">15/04/1981</td>
             <td align=\"left\">".$rs_familiar->rowset["sparentesco"]."</td>
             <td align=\"left\">".$rs_familiar->rowset["sgrado_instruccion"]."</td>
             <td align=\"left\">".$rs_familiar->rowset["socupacion"]."</td>
